@@ -40,7 +40,7 @@ submissions) in a browser instead of a Word file or a web form you cannot save.
 
 ### With Docker
 
-    git clone https://github.com/<your-account>/review-workbench.git
+    git clone https://github.com/edos08/review-workbench.git
     cd review-workbench
     docker compose up -d --build
 
@@ -101,7 +101,7 @@ environment variables. That is why every setting above is a variable with a sens
 The menu names differ between tools and versions; the idea is the same:
 
 1. **Create a stack from a Git repository.**
-   - Repository URL: `https://github.com/<your-account>/review-workbench`
+   - Repository URL: `https://github.com/edos08/review-workbench`
    - Branch: `main`
    - Compose file: `compose.yaml`
 2. **Add environment variables** in the stack's environment section. Typically:
