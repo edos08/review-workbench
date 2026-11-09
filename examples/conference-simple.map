@@ -1,0 +1,40 @@
+# A compact, generic conference-paper review (NOT an official form of any conference):
+# summary, pros and cons, questions, one overall score, confidence.
+
+Sitemap label="Conference paper - simple review" venue="Conference" {
+
+  Frame label="Paper (private bookkeeping)" private {
+    Text id=paper_title label="Paper title" private
+    Text id=paper_id label="Submission number" private placeholder="e.g. 1234"
+  }
+
+  Markdown id=summary label="Summary" required hint="In your own words: problem, idea, evidence, headline result."
+  Markdown id=strengths label="Strengths" required
+  Markdown id=weaknesses label="Weaknesses" required
+  Markdown id=questions label="Questions for the authors" hint="Numbered, so they can answer one by one. Ask things that could change your mind."
+
+  Frame label="Scores" {
+    Choice id=overall label="Overall recommendation" required help="""
+      Judge the paper as submitted, not as it could become. Be consistent with the text above:
+      a review that lists mostly weaknesses should not carry a top score.
+    """ {
+      Option value=6 label="6 - Strong accept"
+      Option value=5 label="5 - Accept"
+      Option value=4 label="4 - Weak accept"
+      Option value=3 label="3 - Weak reject"
+      Option value=2 label="2 - Reject"
+      Option value=1 label="1 - Strong reject"
+    }
+    Choice id=confidence label="Confidence" required help="Be honest: a lower number helps the chair weigh your review correctly." {
+      Option value=4 label="4 - Certain, I know this area well"
+      Option value=3 label="3 - Fairly confident"
+      Option value=2 label="2 - Unsure about some parts"
+      Option value=1 label="1 - Educated guess"
+    }
+    Checkbox id=award label="Nominate for a best-paper award"
+  }
+
+  Frame label="Private notes" private {
+    Textarea id=notes label="Reading notes" private rows=8
+  }
+}

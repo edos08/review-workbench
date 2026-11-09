@@ -1,0 +1,12 @@
+.git
+.gitignore
+data
+reviews
+docs
+tests
+__pycache__
+*.pyc
+.env
+README.md
+compose.yaml
+Dockerfile

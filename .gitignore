@@ -1,0 +1,7 @@
+# Confidential: reviews and papers must never be pushed
+data/
+reviews/
+.env
+__pycache__/
+*.pyc
+.DS_Store

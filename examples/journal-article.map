@@ -1,0 +1,97 @@
+# A generic journal-manuscript referee report (NOT an official form of any journal):
+# comments to the authors, confidential comments to the editor, four quality ratings,
+# and a recommendation. Adapt the wording to the journal's own form.
+
+Sitemap label="Journal article - referee report" venue="Journal" {
+
+  Frame label="Manuscript (private bookkeeping)" private {
+    Text id=ms_title label="Manuscript title" private
+    Text id=ms_id label="Manuscript number" private
+  }
+
+  Frame label="Comments to the authors" {
+
+    Markdown id=summary label="Summary of the submission" required hint="What the manuscript claims and how." help="""
+      WHAT IS ASKED
+      A neutral summary in your own words: the question, the method, the main results.
+      It shows the editor and the authors that you understood the paper.
+
+      GOOD PRACTICE
+      - 5-10 lines, no judgement yet.
+      - Say what the authors claim, not whether you believe it.
+    """
+
+    Markdown id=strengths label="Strengths" required hint="Concrete positives, with pointers to sections, figures or tables."
+
+    Markdown id=weaknesses label="Weaknesses and required changes" required hint="Ordered by importance. For each: the issue, where, why it matters, how to fix it." help="""
+      WHAT IS ASKED
+      The substance of your report. Separate MAJOR concerns (conclusions not supported, flawed method,
+      missing analysis) from MINOR ones (typos, presentation, missing references).
+
+      GOOD PRACTICE
+      - Number the points so the authors can answer them one by one.
+      - Criticise the work, never the authors.
+      - Say what evidence or change would resolve each major concern.
+    """
+
+    Markdown id=minor label="Minor comments" hint="Typos, wording, small presentation points."
+  }
+
+  Frame label="Confidential comments to the editor" {
+    Markdown id=editor_notes label="For the editor only" hint="Not shown to the authors. Concerns about ethics, plagiarism, overlap with other work, or your confidence."
+  }
+
+  Frame label="Assessment" {
+
+    Choice id=originality label="Originality" required {
+      Option value=4 label="4 - Highly original"
+      Option value=3 label="3 - Clearly novel"
+      Option value=2 label="2 - Incremental"
+      Option value=1 label="1 - Not novel"
+    }
+    Choice id=soundness label="Technical soundness" required {
+      Option value=4 label="4 - Rigorous"
+      Option value=3 label="3 - Sound, minor gaps"
+      Option value=2 label="2 - Significant gaps"
+      Option value=1 label="1 - Unsound"
+    }
+    Choice id=significance label="Significance" required {
+      Option value=4 label="4 - Important to the field"
+      Option value=3 label="3 - Useful to a subfield"
+      Option value=2 label="2 - Limited interest"
+      Option value=1 label="1 - No interest"
+    }
+    Choice id=clarity label="Clarity of presentation" required {
+      Option value=4 label="4 - Excellent"
+      Option value=3 label="3 - Good"
+      Option value=2 label="2 - Hard to follow in parts"
+      Option value=1 label="1 - Unclear"
+    }
+
+    Choice id=recommendation label="Recommendation" required help="""
+      HOW TO CHOOSE
+      - Accept: publishable as is, at most trivial edits.
+      - Minor revision: sound; small, clearly listed fixes.
+      - Major revision: promising, but conclusions or analysis must change; you would want to see it again.
+      - Reject: fundamental flaws, or not suitable for this journal.
+    """ {
+      Option value=accept label="Accept"
+      Option value=minor label="Accept after minor revision"
+      Option value=major label="Major revision"
+      Option value=reject label="Reject"
+    }
+
+    Choice id=confidence label="Your confidence" required {
+      Option value=3 label="3 - Expert in this exact topic"
+      Option value=2 label="2 - Knowledgeable"
+      Option value=1 label="1 - Outside my area"
+    }
+  }
+
+  Frame label="Reviewer workbench (private - never exported)" private {
+    Checkbox id=chk_claims label="Listed the claims and checked each is supported" private
+    Checkbox id=chk_refs label="Checked references and novelty claims" private
+    Checkbox id=chk_stats label="Checked statistics / methods details" private
+    Textarea id=scratch label="Notes while reading" private rows=8
+  }
+}

@@ -1,0 +1,14 @@
+# A very short review, e.g. for a workshop or extended abstract (generic, not an official form).
+
+Sitemap label="Workshop - short review" venue="Workshop" {
+
+  Markdown id=comments label="Comments to the authors" required hint="A few paragraphs: what is good, what to improve."
+
+  Choice id=decision label="Decision" required {
+    Option value=accept label="Accept"
+    Option value=revise label="Accept if the comments are addressed"
+    Option value=reject label="Reject"
+  }
+
+  Textarea id=chair label="Note to the chairs (optional)" hint="Not shown to the authors." rows=3
+}

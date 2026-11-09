@@ -1,0 +1,296 @@
+# AAMAS 2027 - OpenReview "Official Review" form.
+# Fields, wording and scales are copied from the OpenReview template.
+# `help` = long beginner-oriented explanation shown in the app (not part of the submission).
+# `private` fields are your own workbench: saved with the review, never exported.
+
+Sitemap label="AAMAS 2027 - Official Review" venue="AAMAS 2027" {
+
+  Frame label="Paper (private bookkeeping)" private {
+    Text id=paper_title label="Paper title" private
+    Text id=paper_id label="Submission number" private placeholder="e.g. 1234"
+  }
+
+  Info label="How to use this form" text="""
+    The form below mirrors the OpenReview form field by field, in the same order.
+    Click "What does this mean?" under any field for a plain-language explanation,
+    what a good answer looks like, and common beginner mistakes.
+
+    Suggested workflow: (1) read the paper once quickly, (2) fill the private workbench
+    at the bottom while reading carefully, (3) write Summary, then Review, (4) only then
+    pick the scores, so that scores follow from your arguments, not the other way round.
+
+    Reminder from the template: you may not upload the paper into a generative AI tool such as ChatGPT.
+  """
+
+  Frame label="Written part" {
+
+    Markdown id=summary label="Summary" required hint="Briefly summarise the main contribution of the paper." help="""
+      WHAT IS ASKED
+      A short, neutral description of what the paper does. It is NOT where you judge the paper.
+      The template also reminds you that you may not upload the paper to a generative AI tool.
+
+      WHY IT EXISTS
+      (1) It proves you understood the paper. (2) The authors and the Area Chair can check whether
+      their message came across: if your summary is wrong, the paper is unclear. (3) It lets the Area Chair
+      (who may not have time to read the paper) see what the paper claims.
+
+      WHAT A GOOD SUMMARY CONTAINS (about 5-10 lines)
+      - The problem: what is the paper trying to solve, and why is that hard?
+      - The idea: what do the authors propose (method, theory, benchmark, analysis...)?
+      - The evidence: how is it supported (theorems, experiments, which benchmarks, which baselines)?
+      - The headline result: what do the authors claim they achieve?
+
+      TIPS
+      - Write it in your own words, in a neutral tone: describe claims as "the authors claim / show / propose".
+      - Do not put criticism or praise here. Save it for the Review field.
+      - Test: could the authors read it and say "yes, that is what we did"? If so, it is good.
+
+      COMMON MISTAKES
+      - Copying the abstract: it shows nothing about your understanding.
+      - Describing only the problem and not the contribution.
+      - Slipping judgements in ("a nice but incremental idea").
+    """
+
+    Frame label="Scores" {
+
+      Choice id=technical label="Technical Quality" required hint="Please assess the technical quality of the paper." help="""
+        WHAT IS ASKED
+        Is the work correct and well supported? This is about SOUNDNESS, not about whether the topic is exciting.
+
+        WHAT TO CHECK
+        - Are the claims actually backed by the theory or the experiments shown?
+        - Theory: are the assumptions stated and reasonable? Do the proofs look right (check at least the key steps)?
+        - Experiments: are the baselines strong and fairly tuned? Enough seeds / runs and reported variance? Are the
+          benchmarks appropriate? Do ablations show which component matters? Are metrics well defined?
+        - Do conclusions overreach the evidence (e.g. "robust" claimed from three environments)?
+        - Is the method described precisely enough to be reproduced (hyperparameters, code, appendix)?
+
+        HOW TO CHOOSE
+        Anchor on the weakest important link: a beautiful idea with a flawed evaluation is not "Excellent".
+        Typical flaws that lower the score: missing key baselines, unfair comparisons, unsupported claims,
+        proofs with gaps, results within noise. If you find a flaw, point to it concretely in the Review field.
+
+        Remember that this score is separate from Significance and Presentation: a paper can be sound but
+        unimportant, or important but sloppily written. Score each dimension independently.
+      """ {
+        Option value=5 label="5. Excellent" help="Rigorous and convincing. Claims are fully supported; evaluation is thorough and fair. You could not find meaningful technical weaknesses."
+        Option value=4 label="4. Very Good" help="Solid. Minor weaknesses (a missing ablation, a small gap) that do not threaten the main claims."
+        Option value=3 label="3. Acceptable" help="Mostly sound, but with noticeable weaknesses or some claims only partly supported. Fixable in a revision."
+        Option value=2 label="2. Flawed" help="Significant problems: key claims are not supported, evaluation is inadequate or unfair, or there are errors that matter."
+        Option value=1 label="1. Fatally Flawed" help="The central claims are wrong or cannot be trusted (e.g. a proof is incorrect, the experiments do not test the claim). Use rarely, and justify precisely."
+      }
+
+      Choice id=significance label="Significance And Relevance" required hint="Please assess the significance and relevance of the paper." help="""
+        WHAT IS ASKED
+        Two questions in one: (a) Does the paper belong at AAMAS (agents and multiagent systems)?
+        (b) If it works, would it matter - to how many people in the community?
+
+        WHAT TO CONSIDER
+        - Relevance: agents, multiagent learning, coordination, game theory, social choice, agent-based modelling,
+          human-agent interaction, etc. A pure single-agent paper with a token "multi-agent" mention is borderline.
+        - Impact: does it open a new direction, solve a known open problem, or give a tool others will use?
+          Or is it a small tweak on an existing method?
+        - Novelty matters here: how different is it from prior work? Check related work you know, and the paper's own
+          positioning. Say which prior works it is close to.
+        - Scope: a result limited to one narrow setting is significant for a subfield at most.
+
+        HOW TO CHOOSE
+        The scale is about BREADTH of audience: whole AAMAS area (5) down to a subfield (3-2) to out of scope (1).
+        Do not downgrade just because the topic is not YOUR topic, and do not upgrade just because it is
+        fashionable. If you are unsure about novelty, say so in the Review and lower your Confidence.
+      """ {
+        Option value=5 label="5. Potentially highly impactful for the entire AAMAS area" help="Could change how many AAMAS researchers think or work. Rare."
+        Option value=4 label="4. Significant for large parts of the AAMAS community" help="Of clear interest to several AAMAS subareas."
+        Option value=3 label="3. Significant for an AAMAS subfield" help="Solid contribution that matters to people working on this specific topic."
+        Option value=2 label="2. Some significance for an AAMAS subfield" help="Incremental or narrow; modest value even for the subfield."
+        Option value=1 label="1. Not relevant to AAMAS" help="Out of scope for the conference."
+      }
+
+      Choice id=presentation label="Presentation Quality" required hint="Please assess the presentation quality of the paper." help="""
+        WHAT IS ASKED
+        How clearly is the paper written and organised? This is about communication, not about the science itself.
+
+        WHAT TO CHECK
+        - Could an informed AAMAS reader follow the paper and reproduce the idea from the text alone?
+        - Are the problem, notation and method defined before use? Is notation consistent?
+        - Do figures and tables help and have readable captions/axes? Are results easy to find?
+        - Is the structure logical (motivation -> method -> experiments -> discussion)? Are limitations stated?
+        - Is related work covered fairly? Is the language understandable?
+        - Does it respect the formatting and page limits?
+
+        HOW TO CHOOSE
+        Minor typos do not matter much; confusing notation, undefined terms, or unreadable plots do. If you needed
+        to guess what the authors meant, that is a presentation problem: give concrete examples in the Review so the
+        authors can fix it. Do not let writing quality leak into the Technical Quality score, and vice versa.
+      """ {
+        Option value=5 label="5. Excellent" help="Clear, well organised, a pleasure to read."
+        Option value=4 label="4. Very Good" help="Clear overall; minor issues only."
+        Option value=3 label="3. Acceptable" help="Understandable but with parts needing effort or rewriting."
+        Option value=2 label="2. Poor" help="Hard to follow; important parts unclear, which impedes judging the work."
+        Option value=1 label="1. Unacceptable" help="Cannot be understood or evaluated in its current form."
+      }
+    }
+
+    Markdown id=review label="Review" required hint="Evaluation of quality, clarity, originality and significance, including a list of pros and cons (max 200000 characters). Markdown and LaTeX are supported." help="""
+      WHAT IS ASKED
+      The main body of your review: a reasoned evaluation of the paper's quality, clarity, originality and significance,
+      with an explicit list of pros and cons. Markdown is supported, and so are LaTeX formulas ($...$).
+      The OpenReview limit is 200000 characters: you will never need that much.
+
+      WHAT THE READERS DO WITH IT
+      The authors use it to improve the paper or to rebut. The Area Chair uses it (with the other reviews) to decide.
+      So it has to justify your scores to someone who has not read the paper closely.
+
+      A STRUCTURE THAT WORKS
+      1. Overall assessment (2-4 sentences): your verdict and the main reasons.
+      2. Strengths (pros): bullet points, specific ("the ablation in Table 3 isolates X")
+         rather than generic ("well written").
+      3. Weaknesses (cons): bullet points ordered by importance. For each: what is the issue, where in the paper,
+         why it matters, and what would fix it.
+      4. Detailed comments by dimension:
+         - Quality (technical soundness): claims vs. evidence, assumptions, proofs, experimental design.
+         - Clarity: what was hard to follow, notation, figures.
+         - Originality: relation to prior work; name the closest papers if you know them.
+         - Significance: who would care and why.
+      5. Questions for the authors: things whose answers could change your mind. Number them so the
+         authors can reply one by one.
+      6. Minor comments: typos, small presentation details (clearly separated from the major points).
+      7. Optional: what would raise your score (concrete changes or experiments).
+
+      TIPS FOR A NEW REVIEWER
+      - Be specific and constructive; criticise the work, never the authors. Write what you would want to receive.
+      - Back every criticism with a reason or a reference to a section, equation, figure or table.
+      - Separate facts ("Table 2 has no variance") from opinions ("I find the benchmark weak").
+      - Do not penalise a paper for not doing something outside its stated scope, but do flag overclaims.
+      - Do not ask for endless extra experiments: request those that test the central claim.
+      - Say what you did NOT check (e.g. "I did not verify the proofs in the appendix").
+      - Disclose uncertainty; it is better than faking expertise (see Confidence).
+      - Check the reviewer guidelines linked in the template for the venue's rules on conduct and confidentiality.
+      - The scores you picked must be consistent with this text. If you write mostly weaknesses, a high score will
+        confuse the Area Chair.
+    """
+  }
+
+  Frame label="Recommendation" {
+
+    Choice id=rating_proceedings label="Rating Proceedings" required hint="Overall recommendation for acceptance in the Proceedings of AAMAS 2027." help="""
+      WHAT IS ASKED
+      Your overall verdict: should this paper be accepted to the main Proceedings of AAMAS 2027?
+      This is the number the Area Chair looks at first, and it should summarise ALL your assessments: technical
+      quality, significance, presentation and originality.
+
+      HOW TO CHOOSE
+      Ask: "Would I be comfortable seeing this paper in the proceedings as it is, with at most minor edits?"
+      - Yes, happily -> 7 or more. Yes, but only just -> 6.
+      - Not as it is, but it is close and fixable -> 5.
+      - Real problems remain -> 4 or lower.
+      Weigh the severity of problems, not their number. Technical soundness and significance usually weigh more than
+      presentation, because presentation can be fixed in a revision and soundness cannot.
+
+      CALIBRATION
+      Scores are relative to the whole pool of AAMAS papers: the scale is defined by "top X% of accepted papers".
+      Most papers sit in the middle (4-7). 9-10 are exceptional and need strong justification; 1-2 are reserved for
+      trivial or seriously wrong work. Avoid always giving the same score by habit. The extremes carry heavy
+      weight in the discussion, so make sure your text defends them.
+
+      The decision between 5 and 6 is the threshold between rejecting and accepting: write in the Review what
+      one specific change would flip it.
+    """ {
+      Option value=10 label="10: Top 5% of accepted papers, seminal paper" help="Seminal work. Extremely rare."
+      Option value=9 label="9: Top 15% of accepted papers, strong accept" help="Excellent in all respects; clearly stands out among accepted papers."
+      Option value=8 label="8: Top 50% of accepted papers, clear accept" help="Strong paper; you will argue for acceptance."
+      Option value=7 label="7: Good paper, accept" help="Good, sound, worth publishing; weaknesses are minor."
+      Option value=6 label="6: Marginally above acceptance threshold" help="Borderline but leaning accept: strengths slightly outweigh weaknesses."
+      Option value=5 label="5: Marginally below acceptance threshold" help="Borderline but leaning reject: weaknesses slightly outweigh strengths, or fixable major issues."
+      Option value=4 label="4: Ok but not good enough - rejection" help="Reasonable work, but not at the level required: significant weaknesses."
+      Option value=3 label="3: Clear rejection" help="Serious problems in soundness, novelty or clarity."
+      Option value=2 label="2: Strong rejection" help="Fundamentally weak; very unlikely to be fixable by revision."
+      Option value=1 label="1: Trivial or wrong" help="The work is trivial or incorrect."
+    }
+
+    Choice id=rating_findings label="Rating Findings" required hint="If the paper is not selected for the Proceedings, your recommendation for the Findings of AAMAS 2027." help="""
+      WHAT IS ASKED
+      Papers not selected for the Proceedings are automatically considered for the "Findings of AAMAS 2027"
+      (a secondary publication track), unless the authors opt out. This second score asks: if the paper does not
+      make the main Proceedings, should it appear in Findings instead?
+
+      The scale is the same as Rating Proceedings, but the bar is lower: Findings is for sound work that is useful
+      to the community yet does not reach the Proceedings' threshold (for example solid but incremental, narrower
+      in scope, or with limited novelty).
+
+      HOW TO CHOOSE
+      - Is the work technically sound and honest in its claims? If yes, a Findings recommendation is usually
+        higher than or equal to your Proceedings score.
+      - If the work is fundamentally flawed (wrong claims, unsound experiments), both scores should be low:
+        Findings is not a place for papers that cannot be trusted.
+      - It should never be lower than your Proceedings score for any sensible reason: a paper good enough for the
+        Proceedings is also good enough for Findings.
+      The submission page may show whether the authors opted out of Findings. If they did, check the venue's
+      reviewer guidelines for how this score will be used.
+    """ {
+      Option value=10 label="10: Top 5% of accepted papers, seminal paper"
+      Option value=9 label="9: Top 15% of accepted papers, strong accept"
+      Option value=8 label="8: Top 50% of accepted papers, clear accept"
+      Option value=7 label="7: Good paper, accept"
+      Option value=6 label="6: Marginally above acceptance threshold"
+      Option value=5 label="5: Marginally below acceptance threshold"
+      Option value=4 label="4: Ok but not good enough - rejection"
+      Option value=3 label="3: Clear rejection"
+      Option value=2 label="2: Strong rejection"
+      Option value=1 label="1: Trivial or wrong"
+    }
+
+    Choice id=confidence label="Confidence" required hint="Please indicate your confidence in this review." help="""
+      WHAT IS ASKED
+      How much should the Area Chair trust YOUR review? It is a statement about you, not about the paper.
+
+      WHY IT MATTERS
+      The Area Chair weights reviews by confidence. Overstating it makes a mistaken review count too much;
+      understating it wastes a good one. Being honest here is a sign of a good reviewer, and being a newcomer
+      is a legitimate reason for a lower number.
+
+      HOW TO CHOOSE
+      Ask yourself:
+      - Do I know this subarea and its main prior works well enough to judge novelty? (relevance of literature)
+      - Did I read the whole paper, including the appendix, and check the technical parts (proofs, experimental setup)?
+      - Did I understand the central contribution?
+      If you could not verify the proofs, or you are not sure about prior work, choose 3 or lower and say
+      precisely what you did not check in the Review.
+      Typical values: 5 is rare (expert in exactly this topic); 4 for an expert who skipped some details; 3 for
+      a related field or a quick check; 2-1 when you are outside your area or struggled to understand.
+    """ {
+      Option value=5 label="5: The reviewer is absolutely certain that the evaluation is correct and very familiar with the relevant literature"
+      Option value=4 label="4: The reviewer is confident but not absolutely certain that the evaluation is correct"
+      Option value=3 label="3: The reviewer is fairly confident that the evaluation is correct"
+      Option value=2 label="2: The reviewer is willing to defend the evaluation, but it is quite likely that the reviewer did not understand central parts of the paper"
+      Option value=1 label="1: The reviewer's evaluation is an educated guess"
+    }
+
+    Checkbox id=best_paper label="I nominate this paper for a Best Paper Prize." hint="Optional: would you nominate this paper for a Best Paper Prize?" help="""
+      WHAT IS ASKED
+      An optional flag. Tick it only if you think this is among the very best papers at the conference.
+
+      WHEN TO TICK
+      Generally only when your Rating Proceedings is very high (typically 9-10) AND you can say why it stands out:
+      a new idea, a convincing and unusually thorough evaluation, a clear writing. Say it in the Review.
+      If you are not sure, leave it unticked: it is the exception, not the default.
+    """
+  }
+
+  Frame label="Reviewer workbench (private - never exported)" private {
+
+    Info label="About this section" text="Your own notes and checklist. They are saved with the review but excluded from the exported text."
+
+    Checkbox id=chk_read label="First quick read done (abstract, intro, figures, conclusions)" private
+    Checkbox id=chk_claims label="Listed the paper's claims and checked that each one is supported" private
+    Checkbox id=chk_theory label="Checked assumptions / key proof steps" private
+    Checkbox id=chk_exp label="Checked experimental design: baselines, seeds, variance, ablations, metrics" private
+    Checkbox id=chk_related label="Checked related work and novelty claims" private
+    Checkbox id=chk_repro label="Checked reproducibility (code, hyperparameters, appendix)" private
+    Checkbox id=chk_ethics label="Checked for ethical / conflict-of-interest / dual-submission concerns" private
+    Checkbox id=chk_consistent label="Scores are consistent with the text of my Review" private
+
+    Textarea id=notes_questions label="Questions to ask the authors" private
+    Textarea id=notes_page label="Notes while reading (page, issue)" private rows=10
+  }
+}

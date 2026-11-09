@@ -1,0 +1,47 @@
+# The smallest useful map, using every widget type once. Copy it and edit.
+# Lines starting with '#' are comments. Layout is free-form: only the braces matter.
+#
+# Usage: open a review -> "Map" menu -> "Upload a map..." and pick this file.
+
+Sitemap label="Minimal example" venue="Any venue" {
+
+  Info label="Read me" text="Info boxes show static text. Use them for instructions to yourself."
+
+  Frame label="Written part" {
+
+    # Single-line text. 'required' counts toward the progress indicator in the top bar.
+    Text id=title label="Short title of your review" required placeholder="one line"
+
+    # Multi-line plain text.
+    Textarea id=notes label="Quick notes" rows=4
+
+    # Multi-line text with a Write/Preview tab (Markdown and $LaTeX$ are what you paste into most review systems).
+    # 'hint' is the grey line under the label; 'help' is the long "What does this mean?" panel.
+    Markdown id=review label="Review" required hint="Strengths, weaknesses, questions." help="""
+      WHAT IS ASKED
+      Anything you write here is shown in the expandable help panel.
+      Lines in ALL CAPS become headings; lines starting with "- " become bullets.
+
+      - First bullet
+      - Second bullet
+    """
+  }
+
+  Frame label="Scoring" {
+
+    # One answer out of several. Each Option has a stored 'value' and a shown 'label'.
+    Choice id=score label="Overall score" required help="Pick the option that best matches your verdict." {
+      Option value=3 label="3 - Accept" help="Shown in grey under the option."
+      Option value=2 label="2 - Borderline"
+      Option value=1 label="1 - Reject"
+    }
+
+    Checkbox id=conflict label="I have no conflict of interest with the authors" required
+  }
+
+  # 'private' (on a Frame or a single field) keeps it in the saved review but leaves it
+  # out of the exported text, and tags it "private" in the form.
+  Frame label="My private notes" private {
+    Textarea id=todo label="Things to double-check before submitting"
+  }
+}
