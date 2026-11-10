@@ -76,8 +76,9 @@
       mkTool("strike", "Strike", "Strikethrough: selected text is struck out immediately"),
       ...dots,
       h("span", { class: "sep" }), markBtn, backBtn, h("span", { class: "grow" }), listBtn,
+      h("button", { title: "Hide the panel (the PDF stays attached; reopen it from the tab on the right edge)", onclick: () => opts.onHide && opts.onHide() }, "Hide"),
       h("button", { onclick: () => opts.onChangeFile && opts.onChangeFile() }, "Change"),
-      h("button", { onclick: () => opts.onClose && opts.onClose() }, "Close"));
+      h("button", { title: "Remove the PDF from this review", onclick: () => opts.onClose && opts.onClose() }, "Remove"));
 
     const listEl = h("div", { class: "annlist" });
     const panel = h("div", { class: "annpanel" },

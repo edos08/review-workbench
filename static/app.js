@@ -426,7 +426,8 @@ async function showReview(id, token) {
     onAnnotations: () => mark("annotations"),
     onState: st => { review.pdfState = st; mark("pdfState"); },
     onChangeFile: () => pdfInput.click(),
-    onClose: async () => { viewer.close(); root.classList.remove("has-pdf"); try { await api("DELETE", `/api/reviews/${id}/pdf`); } catch (e) { alert("Could not remove the PDF: " + e.message); } review.paperFile = null; review.pdfState = null; mark("paperFile"); mark("pdfState"); },
+    onHide: () => setPane(false),
+    onClose: async () => { viewer.close(); root.classList.remove("has-pdf"); setPane(false); try { await api("DELETE", `/api/reviews/${id}/pdf`); } catch (e) { alert("Could not remove the PDF: " + e.message); } review.paperFile = null; review.pdfState = null; mark("paperFile"); mark("pdfState"); },
   });
   current = { cleanup: () => { window.removeEventListener("beforeunload", onUnload); document.removeEventListener("keydown", onKeySave); clearTimeout(timer); flush(); viewer.destroy(); } };
   const openPdf = async (blob, persist) => {
@@ -434,15 +435,47 @@ async function showReview(id, token) {
       status.className = "status"; status.textContent = "Uploading PDF…";
       try { await apiRaw("PUT", `/api/reviews/${id}/pdf`, blob, "application/pdf"); }
       catch (e) { alert("Could not upload the PDF: " + e.message); status.textContent = "Upload failed"; status.className = "status err"; return false; }
+      if (token !== navToken) return true;  // you left this page while the upload ran: it is stored, nothing to show
       review.paperFile = blob.name || "paper.pdf"; review.pdfState = null; mark("paperFile"); mark("pdfState");
     }
+    if (token !== navToken) return true;
     root.classList.add("has-pdf");
+    setPane(true);
     restoreNote?.remove();
-    try { await viewer.open(blob, persist ? null : review.pdfState); viewer.refreshAnnotations(); }
-    catch (e) { alert("Could not open the PDF: " + e.message); viewer.close(); root.classList.remove("has-pdf"); }
+    try { await viewer.open(blob, persist ? null : review.pdfState); if (token === navToken) viewer.refreshAnnotations(); }
+    catch (e) { alert("Could not open the PDF: " + e.message); viewer.close(); root.classList.remove("has-pdf"); setPane(true); }
     return true; // stored on the server (or already was)
   };
-  const pdfBtn = h("button", { onclick: () => pdfInput.click() }, "Select file (PDF)…");
+  const pdfBtn = h("button", { onclick: () => pdfInput.click(), title: "Choose the paper's PDF to read beside the form" }, "Open PDF…");
+
+  /* the side panel: an edge tab to open it, an inviting empty state, and drag-and-drop */
+  const pdfTab = h("button", { class: "pdf-tab", onclick: () => setPane(true), "aria-label": "Open the PDF panel" });
+  function setPane(on) {
+    root.classList.toggle("show-pane", on);
+    const has = root.classList.contains("has-pdf");
+    pdfTab.replaceChildren(h("span", { class: "pdf-tab-icon", "aria-hidden": "true" }, "📄"), has ? "Show the PDF" : "Open the PDF here");
+    pdfTab.title = has ? "Show the paper beside the form" : "Read the paper next to your review: highlight, underline, comment";
+  }
+  const pdfEmpty = h("div", { class: "pdf-empty" },
+    h("div", { class: "empty-icon", "aria-hidden": "true" }, "📄"),
+    h("h3", {}, "Read the paper next to your review"),
+    h("p", { class: "muted" }, "Open the paper's PDF here to highlight, underline and comment while you write. It is stored with this review."),
+    h("button", { class: "btn-primary big", onclick: () => pdfInput.click() }, "Select PDF…"),
+    h("p", { class: "muted small-note" }, "or drag a PDF file anywhere onto this page"),
+    h("button", { class: "linkbtn", onclick: () => setPane(false) }, "Close this panel"));
+  pdfpane.append(pdfEmpty);
+  const dropOverlay = h("div", { class: "drop-overlay", hidden: true }, h("div", {}, h("div", { class: "empty-icon", "aria-hidden": "true" }, "📄"), h("b", {}, "Drop the PDF to open it beside your review")));
+  let dragDepth = 0;
+  const hasFiles = e => [...(e.dataTransfer?.types || [])].includes("Files");
+  root.addEventListener("dragenter", e => { if (!hasFiles(e)) return; e.preventDefault(); dragDepth++; dropOverlay.hidden = false; });
+  root.addEventListener("dragover", e => { if (hasFiles(e)) e.preventDefault(); });
+  root.addEventListener("dragleave", e => { if (!hasFiles(e)) return; if (--dragDepth <= 0) { dragDepth = 0; dropOverlay.hidden = true; } });
+  root.addEventListener("drop", e => {
+    if (!hasFiles(e)) return;
+    e.preventDefault(); dragDepth = 0; dropOverlay.hidden = true;
+    const f = [...e.dataTransfer.files].find(x => /\.pdf$/i.test(x.name) || x.type === "application/pdf");
+    if (f) openPdf(f, true); else toast("That is not a PDF file");
+  });
 
   /* form pane */
   const inner = h("div", { class: "inner" });
@@ -568,7 +601,8 @@ async function showReview(id, token) {
     window.addEventListener("mousemove", move); window.addEventListener("mouseup", up);
   });
   const split = h("div", { class: "split" }, formpane, splitter, pdfpane);
-  root.append(topbar, split);
+  root.append(topbar, split, pdfTab, dropOverlay);
+  setPane(root.classList.contains("show-pane"));
   $app.replaceChildren(root);
   document.title = review.title + " – Review Workbench";
   updateProgress();
@@ -577,7 +611,11 @@ async function showReview(id, token) {
   try {
     const r = await fetch(`/api/reviews/${id}/pdf`);
     if (token !== navToken) return;
-    if (r.ok) await openPdf(new File([await r.blob()], review.paperFile || "paper.pdf", { type: "application/pdf" }), false);
+    if (r.ok) {
+      const blob = await r.blob();
+      if (token !== navToken) return;
+      await openPdf(new File([blob], review.paperFile || "paper.pdf", { type: "application/pdf" }), false);
+    }
     else {
       const legacy = await pdfGet(id);
       if (token !== navToken) return;

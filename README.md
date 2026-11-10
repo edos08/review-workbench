@@ -218,8 +218,13 @@ divider to resize).
 
 ### The PDF pane
 
-1. Press **Select file (PDF)…** and choose the paper. It is uploaded to *your* server and stored in the review's
-   folder; it opens again whenever you open the review, from any device.
+1. **Open the paper beside the form.** A blue tab on the right edge of the screen says **Open the PDF here**; click it
+   and a side panel opens with a **Select PDF…** button (the **Open PDF…** button in the top bar does the same).
+   You can also **drag a PDF file anywhere onto the page**. The PDF is uploaded to *your* server and stored in the
+   review's folder, so it opens again whenever you open the review, from any device. A review that already has a PDF
+   opens with the panel open.
+   - **Hide** collapses the panel (the tab on the edge turns into **Show the PDF**) without detaching anything;
+     **Change** picks another file; **Remove** detaches the PDF from the review.
 2. **Annotate:** select text and a small bar appears (five highlight colours: yellow, orange, red, green, blue; underline; strikethrough; or
    highlight + comment). Or pick a tool in the toolbar (*Highlight*, *Underline*, *Strike*) and every selection is
    marked immediately; pick *Select* to go back.
