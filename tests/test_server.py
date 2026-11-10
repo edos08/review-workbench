@@ -227,6 +227,18 @@ class TestStatic(ServerCase):
             self.assertEqual(st, 200, path)
             self.assertTrue(ctype.startswith(want), (path, ctype))
             self.assertGreater(len(data), 100, path)
+        # Safari keeps tab icons in its own cache and may skip responses marked no-store: icons must be cacheable
+        for path in ("/favicon.svg", "/favicon-32.png", "/apple-touch-icon.png", "/favicon.ico"):
+            c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=10)
+            c.request("GET", path)
+            r = c.getresponse(); r.read(); c.close()
+            cc = r.getheader("Cache-Control") or ""
+            self.assertIn("max-age=", cc, path)
+            self.assertNotIn("no-store", cc, path)
+        c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=10)
+        c.request("GET", "/app.js"); r = c.getresponse(); r.read(); c.close()
+        self.assertIn("no-store", r.getheader("Cache-Control") or "")  # the app itself is never served stale
+        self.assertIn(b'rel="shortcut icon" href="/favicon.ico"', self.req("GET", "/")[2])
         self.assertTrue(self.req("GET", "/favicon-32.png")[2].startswith(b"\x89PNG"))
         self.assertTrue(self.req("GET", "/favicon.ico")[2].startswith(b"\x00\x00\x01\x00"))
 

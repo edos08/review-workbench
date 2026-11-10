@@ -276,3 +276,9 @@ body.dragging .pdfcontainer { pointer-events: none; }
 .drop-overlay > div { background: var(--accent); padding: 26px 40px; border-radius: 18px; box-shadow: 0 10px 40px rgba(0,0,0,.35); border: 3px dashed rgba(255,255,255,.7); }
 .drop-overlay .empty-icon { font-size: 44px; }
 @media (max-width: 800px) { .pdf-tab { padding: 12px 8px; } }
+
+/* sticky notes on the page */
+.ann-note { pointer-events: auto; cursor: pointer; display: flex; align-items: center; justify-content: center; background: var(--c); color: rgba(0,0,0,.62);
+  border: 1px solid rgba(0,0,0,.35); border-radius: 3px 3px 3px 12px; box-shadow: 1px 2px 5px rgba(0,0,0,.35); font-size: calc(var(--scale-factor, 1) * 15px); line-height: 1; }
+.ann-note:hover { filter: brightness(1.08); transform: scale(1.12); }
+.pdfcontainer[data-tool="note"] .page, .pdfcontainer[data-tool="note"] .textLayer, .pdfcontainer[data-tool="note"] a { cursor: crosshair; }

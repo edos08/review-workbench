@@ -225,16 +225,18 @@ divider to resize).
    opens with the panel open.
    - **Hide** collapses the panel (the tab on the edge turns into **Show the PDF**) without detaching anything;
      **Change** picks another file; **Remove** detaches the PDF from the review.
-2. **Annotate:** select text and a small bar appears (five highlight colours: yellow, orange, red, green, blue; underline; strikethrough; or
+2. **Leave a note:** pick the **📝 Note** tool and click anywhere on the page (a citation too) to drop a sticky note, then type
+   your text; hover it to read it, click it to edit or delete it. An empty note is not kept.
+3. **Annotate text:** select text and a small bar appears (five highlight colours: yellow, orange, red, green, blue; underline; strikethrough; or
    highlight + comment). Or pick a tool in the toolbar (*Highlight*, *Underline*, *Strike*) and every selection is
    marked immediately; pick *Select* to go back.
-3. **Click a mark** to change its type or colour, write a comment (shown as a speech bubble on the page), or delete it.
-4. **☰ Annotations** lists them all; click one to jump there. *Copy all* puts them on the clipboard as a Markdown list,
+4. **Click a mark** to change its type or colour, write a comment (shown as a speech bubble on the page), or delete it.
+5. **☰ Annotations** lists them all; click one to jump there. *Copy all* puts them on the clipboard as a Markdown list,
    handy for your notes.
-5. **Follow citations:** click a citation or any internal link in the PDF. A **↩ Back to p.N** button appears; click
+6. **Follow citations:** click a citation or any internal link in the PDF. A **↩ Back to p.N** button appears; click
    it (or press `Alt+←`) to return to the exact spot you left. Several jumps stack up. The 📍 button saves your
    current spot by hand, for PDFs whose citations are not clickable links.
-6. **Undo/redo** annotations with `Ctrl/Cmd+Z` and `Ctrl/Cmd+Shift+Z` (inside a text field `Ctrl/Cmd+Z` keeps undoing
+7. **Undo/redo** annotations with `Ctrl/Cmd+Z` and `Ctrl/Cmd+Shift+Z` (inside a text field `Ctrl/Cmd+Z` keeps undoing
    text as usual).
 
 Annotations, page and zoom are saved with the review. The viewer is [PDF.js](https://mozilla.github.io/pdf.js/)

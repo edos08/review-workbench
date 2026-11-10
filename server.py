@@ -52,13 +52,13 @@ class Handler(BaseHTTPRequestHandler):
     def store(self):
         return self.server.store
 
-    def _send(self, code, body, ctype="application/json", extra=None):
+    def _send(self, code, body, ctype="application/json", extra=None, cache="no-store"):
         if not isinstance(body, bytes):
             body = json.dumps(body, ensure_ascii=False).encode()
         self.send_response(code)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
+        self.send_header("Cache-Control", cache)
         for k, v in (extra or {}).items():
             self.send_header(k, v)
         self.end_headers()
@@ -106,7 +106,9 @@ class Handler(BaseHTTPRequestHandler):
         ctype = mimetypes.guess_type(f.name)[0] or "application/octet-stream"
         if ctype.startswith("text/") or ctype.endswith("javascript"):
             ctype += "; charset=utf-8"
-        self._send(200, f.read_bytes(), ctype)
+        # Tab icons must be cacheable (Safari keeps them in its own cache); everything else is never served stale.
+        is_icon = f.name.startswith(("favicon", "apple-touch-icon"))
+        self._send(200, f.read_bytes(), ctype, cache="public, max-age=86400" if is_icon else "no-store")
 
     # ---------- API ----------
     def _api(self, method, p):

@@ -6,6 +6,9 @@
   const BASE = "/vendor/pdfjs/";
   const COLORS = { yellow: "#ffe14d", orange: "#ffa53d", red: "#ff5c5c", green: "#7ddc6f", blue: "#6ec6ff" };
   const TYPES = { highlight: "Highlight", underline: "Underline", strike: "Strikethrough" };
+  const ALL_TYPES = { ...TYPES, note: "Note" };
+  const NOTE_W = 0.032, NOTE_H = 0.026;   // size of a sticky note as a fraction of the page
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const SCALE_KEYWORDS = ["page-width", "page-fit", "page-actual", "auto"];
 
   let libPromise = null;
@@ -74,6 +77,7 @@
       mkTool("highlight", "Highlight", "Highlighter: selected text is highlighted immediately"),
       mkTool("underline", "Underline", "Underline: selected text is underlined immediately"),
       mkTool("strike", "Strike", "Strikethrough: selected text is struck out immediately"),
+      mkTool("note", "📝 Note", "Note: click anywhere on the page to leave a text note"),
       ...dots,
       h("span", { class: "sep" }), markBtn, backBtn, h("span", { class: "grow" }), listBtn,
       h("button", { title: "Hide the panel (the PDF stays attached; reopen it from the tab on the right edge)", onclick: () => opts.onHide && opts.onHide() }, "Hide"),
@@ -174,7 +178,7 @@
     }
     const onKey = e => {
       if (e.altKey && e.key === "ArrowLeft" && backStack.length) { e.preventDefault(); goBack(); }
-      if (e.key === "Escape") { hideSel(); hidePop(); }
+      if (e.key === "Escape") { hideSel(); hidePop(); if (tool !== "select") setTool("select"); }
       // Cmd/Ctrl+Z, Shift+Cmd/Ctrl+Z, Ctrl+Y: undo/redo annotations (text fields keep native undo)
       const mod = e.metaKey || e.ctrlKey, k = e.key.toLowerCase();
       if (mod && !e.altKey && (k === "z" || k === "y") && !e.target.closest("input, textarea, [contenteditable]")) {
@@ -198,9 +202,9 @@
       for (const a of anns) {
         if (a.page !== n) continue;
         const c = COLORS[a.color] || a.color || COLORS.yellow;
-        a.rects.forEach(([x, y, w, hh]) => layer.append(h("div", { class: "ann ann-" + a.type,
-          style: `left:${x * 100}%;top:${y * 100}%;width:${w * 100}%;height:${hh * 100}%;--c:${c}` })));
-        if (a.note && a.rects.length) {
+        a.rects.forEach(([x, y, w, hh]) => layer.append(h("div", { class: "ann ann-" + a.type, title: a.type === "note" ? (a.note || "Empty note") : null,
+          style: `left:${x * 100}%;top:${y * 100}%;width:${w * 100}%;height:${hh * 100}%;--c:${c}` }, a.type === "note" ? "✎" : null)));
+        if (a.note && a.rects.length && a.type !== "note") {
           const [x, y, w] = a.rects[0];
           layer.append(h("div", { class: "ann-pin", title: a.note, style: `left:${(x + w) * 100}%;top:${y * 100}%` }, "💬"));
         }
@@ -256,6 +260,7 @@
     function onSelection() {
       const groups = selectionGroups();
       if (!groups) return hideSel();
+      if (tool === "note") return hideSel();
       if (tool !== "select") { addFromSelection(tool, color); return; }
       const r = getSelection().getRangeAt(0).getBoundingClientRect();
       selbar.replaceChildren(
@@ -271,30 +276,58 @@
     function hideSel() { selbar.style.display = "none"; }
 
     /* ---------- click on an existing annotation: edit popover ---------- */
+    function pageHit(e) {
+      const pageDiv = e.target.closest(".page");
+      const tl = pageDiv && pageDiv.querySelector(":scope > .textLayer");
+      if (!tl) return null;
+      const r = tl.getBoundingClientRect();
+      return { n: +pageDiv.dataset.pageNumber, fx: (e.clientX - r.left) / r.width, fy: (e.clientY - r.top) / r.height };
+    }
+    const annotationAt = p => anns.slice().reverse().find(a => a.page === p.n && a.rects.some(q => p.fx >= q[0] && p.fx <= q[0] + q[2] && p.fy >= q[1] && p.fy <= q[1] + q[3]));
+    // Note tool (capture phase, so a click on a citation link places a note instead of following the link)
+    container.addEventListener("click", e => {
+      if (tool !== "note") return;
+      e.preventDefault(); e.stopPropagation();
+      const p = pageHit(e);
+      if (!p) return;
+      const hit = annotationAt(p);
+      if (hit) return openPop(hit, e.clientX, e.clientY);
+      const note = { id: uid(), page: p.n, type: "note", color, text: "", note: "", created: Date.now(),
+        rects: [[+clamp(p.fx - NOTE_W / 2, 0, 1 - NOTE_W).toFixed(5), +clamp(p.fy - NOTE_H / 2, 0, 1 - NOTE_H).toFixed(5), NOTE_W, NOTE_H]] };
+      snap(); anns.push(note);
+      setTool("select");
+      paintAll();
+      openPop(note, e.clientX, e.clientY);
+    }, true);
     container.addEventListener("click", e => {
       if (e.target.closest("a")) return;
       const s = getSelection();
       if (s && !s.isCollapsed) return;
-      const pageDiv = e.target.closest(".page");
-      const tl = pageDiv && pageDiv.querySelector(":scope > .textLayer");
-      if (!tl) return hidePop();
-      const r = tl.getBoundingClientRect();
-      const fx = (e.clientX - r.left) / r.width, fy = (e.clientY - r.top) / r.height, n = +pageDiv.dataset.pageNumber;
-      const hit = anns.slice().reverse().find(a => a.page === n && a.rects.some(q => fx >= q[0] && fx <= q[0] + q[2] && fy >= q[1] && fy <= q[1] + q[3]));
+      const p = pageHit(e);
+      if (!p) return hidePop();
+      const hit = annotationAt(p);
       hit ? openPop(hit, e.clientX, e.clientY) : hidePop();
     });
-    function hidePop() { pop.style.display = "none"; }
+    let popAnn = null;
+    function hidePop() {
+      pop.style.display = "none";
+      const a = popAnn; popAnn = null;
+      if (a && a.type === "note" && !(a.note || "").trim() && anns.includes(a)) remove(a);   // an empty note is not kept
+    }
     function openPop(a, x, y) {
+      if (popAnn && popAnn !== a) hidePop();
+      popAnn = a;
+      const isNote = a.type === "note";
       let snapped = false;
       const edit = fn => { if (!snapped) { snap(); snapped = true; } fn(); paintAll(); };
-      const note = h("textarea", { rows: 3, placeholder: "Comment (shown on hover, kept with the review)…", oninput: () => edit(() => { a.note = note.value; }) });
+      const note = h("textarea", { rows: 3, placeholder: isNote ? "Write your note…" : "Comment (shown on hover, kept with the review)…", oninput: () => edit(() => { a.note = note.value; }) });
       note.value = a.note || "";
-      const typeRow = h("div", { class: "row" }, ...Object.entries(TYPES).map(([k, t]) =>
+      const typeRow = isNote ? h("div", { class: "row" }) : h("div", { class: "row" }, ...Object.entries(TYPES).map(([k, t]) =>
         h("button", { class: "small" + (a.type === k ? " on" : ""), onclick: () => { edit(() => { a.type = k; }); openPop(a, x, y); } }, t)));
       const colorRow = h("div", { class: "row" }, ...Object.entries(COLORS).map(([k, c]) =>
         h("button", { class: "dot" + (a.color === k ? " on" : ""), style: `background:${c}`, title: k, onclick: () => { edit(() => { a.color = k; }); openPop(a, x, y); } })));
       pop.replaceChildren(
-        h("div", { class: "poptext" }, a.text ? `“${a.text.slice(0, 160)}${a.text.length > 160 ? "…" : ""}”` : `Page ${a.page}`),
+        h("div", { class: "poptext" }, isNote ? `Note on page ${a.page}` : a.text ? `“${a.text.slice(0, 160)}${a.text.length > 160 ? "…" : ""}”` : `Page ${a.page}`),
         typeRow, colorRow, note,
         h("div", { class: "row" },
           h("button", { class: "small danger", onclick: () => { remove(a); hidePop(); } }, "Delete"),
@@ -312,7 +345,7 @@
     function renderList() {
       countEl.textContent = anns.length;
       listEl.replaceChildren(...(anns.length ? sorted().map(a => h("div", { class: "annitem", onclick: () => jump(a) },
-        h("div", { class: "annmeta" }, h("span", { class: "swatch", style: `background:${COLORS[a.color] || a.color}` }), `p.${a.page} · ${TYPES[a.type] || a.type}`,
+        h("div", { class: "annmeta" }, h("span", { class: "swatch", style: `background:${COLORS[a.color] || a.color}` }), `p.${a.page} · ${ALL_TYPES[a.type] || a.type}`,
           h("button", { class: "small danger", title: "Delete", onclick: e => { e.stopPropagation(); remove(a); } }, "✕")),
         a.text && h("div", { class: "anntext" }, a.text.length > 140 ? a.text.slice(0, 140) + "…" : a.text),
         a.note && h("div", { class: "annnote" }, a.note)))
@@ -328,7 +361,7 @@
       container.scrollTo({ top: container.scrollTop + pr.top - cr.top + y - 90 });
     }
     function copyAll() {
-      const md = sorted().map(a => `- p.${a.page} [${TYPES[a.type] || a.type}]${a.text ? ` "${a.text}"` : ""}${a.note ? ` — ${a.note}` : ""}`).join("\n");
+      const md = sorted().map(a => `- p.${a.page} [${ALL_TYPES[a.type] || a.type}]${a.text ? ` "${a.text}"` : ""}${a.note ? ` — ${a.note}` : ""}`).join("\n");
       navigator.clipboard.writeText(md || "(no annotations)").then(() => toastMsg("Annotations copied"));
     }
     renderList();
