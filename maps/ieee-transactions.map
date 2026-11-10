@@ -1,0 +1,121 @@
+# Generic IEEE journal referee report built from public IEEE reviewer guidance (contribution to knowledge, technical soundness,
+# novelty, presentation; comments to authors vs confidential comments to the editor; accept / minor / major / reject).
+# Each IEEE journal has its own form: check yours.
+
+Sitemap label="IEEE Transactions - Referee report" venue="IEEE Transactions" kind=journal year=2025 fidelity=guidelines source="https://ieeeaccess.ieee.org/reviewers/reviewer-guidelines/" description="Contribution, technical soundness, novelty, presentation, major/minor comments, confidential comments, four-way recommendation." {
+  Frame label="Paper (private bookkeeping)" private {
+    Text id=paper_title label="Paper title" private
+    Text id=paper_id label="Submission number" private placeholder="e.g. 1234"
+  }
+  Info label="How to use this form" text="Fill this form field by field; click \"What does this mean?\" under any field for an explanation. Suggested order: read the paper once, take notes in the private workbench at the bottom, write the summary, then strengths and weaknesses, and pick the scores last so that they follow from your arguments. Never upload a submission to a third-party AI service, and check the venue's policy on LLM use in reviews."
+  Info label="About this map" text="Built from the venue's public reviewer guidelines (2025); the official review form could not be verified word for word, so field names and scales may differ from the form you receive. Treat this as a structured checklist and adapt it (Form menu, upload your own version) if your form differs. IEEE journals (TPAMI, TNNLS, T-RO, Access, ...) share a common pattern: does the paper contribute to the body of knowledge, is it technically sound, how novel is it, comments to the authors, confidential comments to the editor, recommendation. Each journal's own form differs in detail. Following IEEE practice, keep your recommendation OUT of the text the authors will read."
+  Frame label="Quick assessment" {
+    Choice id=contribution_ok label="Does the paper contribute to the body of knowledge?" required help="Whether the paper adds knowledge a reader could use: a result, method, dataset, insight. Answer Partly when the contribution is real but small or incompletely shown." {
+      Option value=yes label="Yes"
+      Option value=partly label="Partly"
+      Option value=no label="No"
+    }
+    Choice id=sound_ok label="Is the paper technically sound?" required help="Whether the method, proofs and experiments are correct and support the conclusions. Details belong in your comments." {
+      Option value=yes label="Yes"
+      Option value=partly label="Partly"
+      Option value=no label="No"
+    }
+    Choice id=novelty label="Technical novelty" required help="Compare with the closest prior work you know. 'Somewhat novel' means an incremental step. Name the prior work in your comments if you rate it low." {
+      Option value=4 label="Very novel"
+      Option value=3 label="Novel"
+      Option value=2 label="Somewhat novel"
+      Option value=1 label="Not novel"
+    }
+    Choice id=presentation label="Presentation" required help="Clarity, organisation, figures, references, English. Do not let it affect your soundness answer." {
+      Option value=4 label="Excellent"
+      Option value=3 label="Good"
+      Option value=2 label="Fair"
+      Option value=1 label="Poor"
+    }
+    Choice id=scope label="Relevance to the journal" help="IEEE journals have defined scopes. If the paper does not belong, say so to the editor in your confidential comments." {
+      Option value=3 label="Within scope"
+      Option value=2 label="Borderline"
+      Option value=1 label="Out of scope"
+    }
+  }
+  Frame label="Comments to the authors" {
+    Markdown id=summary label="Summary of the paper" required help="""
+        WHAT IS ASKED
+        A neutral summary of the paper in your own words: the problem, the approach, the evidence and the headline result.
+
+        WHY IT MATTERS
+        It shows the authors and the chair that you understood the paper, and gives anyone who skips the rest the context for your scores. If your summary is wrong, the paper was unclear.
+
+        GOOD PRACTICE
+        - 5-10 lines. No judgement here: save it for strengths and weaknesses.
+        - Describe claims as "the authors claim / show / propose".
+        - Test: could the authors read it and say "yes, that is what we did"?
+
+        COMMON MISTAKES
+        - Copying the abstract: it shows nothing about your understanding.
+        - Describing only the problem, not the contribution.
+        - Slipping opinions in ("a nice but incremental idea").
+      """
+    Markdown id=major label="Major comments" required hint="Issues that must be resolved. Numbered, most important first." help="""
+        WHAT IS ASKED
+        The problems that stand between this paper and acceptance, and what it would take to fix them.
+
+        GOOD PRACTICE
+        - Order by importance. Separate MAJOR concerns (claims not supported, flawed evaluation, missing analysis) from MINOR ones (typos, wording).
+        - For each point: what the issue is, where it is, why it matters, what would resolve it.
+        - Criticise the work, never the authors. Separate facts ("Table 2 has no variance") from opinions ("I find the benchmark weak").
+        - Do not penalise a paper for something outside its stated scope, but do flag claims that go beyond the evidence.
+        - Do not ask for endless extra experiments: request those that test the central claim.
+      """
+    Markdown id=minor label="Minor comments" hint="Typos, wording, missing references, figure labels."
+  }
+  Frame label="Confidential and recommendation" {
+    Markdown id=confidential label="Confidential comments to the editor" hint="Not shown to the authors. State your recommendation and any concern about ethics, plagiarism or overlap with other work here too."
+    Choice id=recommendation label="Recommendation" required help="""
+        HOW TO CHOOSE
+        - Accept: publishable as is, at most trivial edits.
+        - Minor revision: sound; small, listed fixes.
+        - Major revision: promising but the analysis or evidence must change; you would want to see it again.
+        - Reject: fundamental flaws or out of scope.
+
+        CALIBRATION
+        Scores are relative to the whole pool of submissions to this venue. Most papers sit in the middle of the scale; the extremes carry heavy weight in the discussion, so make sure your text defends them. Be consistent: a review that lists mostly weaknesses should not carry a high score, and the reverse.
+      """ {
+      Option value=accept label="Accept"
+      Option value=minor label="Minor revision"
+      Option value=major label="Major revision"
+      Option value=reject label="Reject"
+    }
+    Choice id=confidence label="Your confidence" required help="""
+        WHAT IS ASKED
+        How much the chair should trust YOUR review. It is a statement about you, not about the paper.
+
+        WHY IT MATTERS
+        Chairs weight reviews by confidence. Overstating it lets a mistaken review count too much; understating it wastes a good one. Honesty here is a sign of a good reviewer, and being new to an area is a legitimate reason for a lower number.
+
+        HOW TO CHOOSE
+        Ask yourself:
+        - Do I know this subarea and its main prior work well enough to judge novelty?
+        - Did I read the whole paper, including the appendix, and check the technical parts?
+        - Did I understand the central contribution?
+        If you could not verify proofs or are unsure about prior work, choose 3 or lower and say precisely what you did not check in the review.
+      """ {
+      Option value=3 label="3 - Expert in this exact topic"
+      Option value=2 label="2 - Knowledgeable"
+      Option value=1 label="1 - Outside my area"
+    }
+  }
+  Frame label="Reviewer workbench (private - never exported)" private {
+    Info label="About this section" text="Your own notes and checklist. They are saved with the review but excluded from the exported text."
+    Checkbox id=chk_read label="First quick read done (abstract, introduction, figures, conclusions)" private
+    Checkbox id=chk_claims label="Listed the paper's claims and checked that each one is supported" private
+    Checkbox id=chk_method label="Checked the method / assumptions / key proof steps" private
+    Checkbox id=chk_exp label="Checked the evaluation: baselines, data, metrics, variance, ablations" private
+    Checkbox id=chk_related label="Checked related work and the novelty claims" private
+    Checkbox id=chk_repro label="Checked reproducibility (code, data, hyperparameters, appendix)" private
+    Checkbox id=chk_ethics label="Checked ethics, conflicts of interest and dual submission" private
+    Checkbox id=chk_consistent label="My scores are consistent with the text of my review" private
+    Textarea id=notes_questions label="Questions to ask the authors" private
+    Textarea id=notes_reading label="Notes while reading (page, issue)" private rows=10
+  }
+}

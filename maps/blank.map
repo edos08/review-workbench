@@ -1,0 +1,17 @@
+# A blank free-text review: use it when no template fits, then shape the form yourself (Form menu > Upload a map file).
+
+Sitemap label="Blank review (free text)" venue="Any venue" kind=general fidelity=generic
+  description="Just a summary, a free-text review and private notes. Start here when no template matches." {
+
+  Frame label="Paper (private bookkeeping)" private {
+    Text id=paper_title label="Paper title" private
+    Text id=paper_id label="Submission number" private placeholder="e.g. 1234"
+  }
+
+  Markdown id=summary label="Summary" hint="What does the paper do? Neutral, in your own words."
+  Markdown id=review label="Review" required hint="Strengths, weaknesses, questions, recommendation."
+
+  Frame label="Private notes" private {
+    Textarea id=notes label="Reading notes" private rows=10
+  }
+}

@@ -1,0 +1,116 @@
+# TMLR review, modelled on the published reviewer guide: summary of contributions, strengths and weaknesses, the two acceptance
+# criteria (claims supported by evidence; interest to the audience), requested changes (critical vs. strengthening), broader impact,
+# recommendation after discussion. Not an official form: check the one in OpenReview.
+
+Sitemap label="TMLR - Review (Transactions on Machine Learning Research)" venue="TMLR" kind=journal year=2025 fidelity=form source="https://jmlr.org/tmlr/reviewer-guide.html" description="Summary of contributions, strengths and weaknesses, the two acceptance questions (claims and evidence; audience), requested changes, recommendation." {
+  Frame label="Paper (private bookkeeping)" private {
+    Text id=paper_title label="Paper title" private
+    Text id=paper_id label="Submission number" private placeholder="e.g. 1234"
+  }
+  Info label="How to use this form" text="Fill this form field by field; click \"What does this mean?\" under any field for an explanation. Suggested order: read the paper once, take notes in the private workbench at the bottom, write the summary, then strengths and weaknesses, and pick the scores last so that they follow from your arguments. Never upload a submission to a third-party AI service, and check the venue's policy on LLM use in reviews."
+  Info label="About this map" text="Modelled on the review form published by the venue for 2025. Venues change wording and scales between years and tracks: when you copy your answers into the real system, follow the form you were given. TMLR deliberately separates SOUNDNESS (are the claims supported?) from fashion: novelty is not an acceptance criterion. Reviewers give a formal recommendation only after the discussion with the authors, about two weeks after the third review is in."
+  Frame label="Written review" {
+    Markdown id=summary label="Summary of contributions" required hint="Brief description, in your own words, of the contributions and new knowledge the submission presents." help="""
+        WHAT IS ASKED
+        A neutral summary of the paper in your own words: the problem, the approach, the evidence and the headline result.
+
+        WHY IT MATTERS
+        It shows the authors and the chair that you understood the paper, and gives anyone who skips the rest the context for your scores. If your summary is wrong, the paper was unclear.
+
+        GOOD PRACTICE
+        - 5-10 lines. No judgement here: save it for strengths and weaknesses.
+        - Describe claims as "the authors claim / show / propose".
+        - Test: could the authors read it and say "yes, that is what we did"?
+
+        COMMON MISTAKES
+        - Copying the abstract: it shows nothing about your understanding.
+        - Describing only the problem, not the contribution.
+        - Slipping opinions in ("a nice but incremental idea").
+      """
+    Markdown id=strengths label="Strengths and weaknesses" required hint="List the strengths and weaknesses of the submission, in terms of the two acceptance criteria below." help="""
+        WHAT IS ASKED
+        An assessment organised around TMLR's two acceptance criteria:
+        - Are the claims supported by accurate, convincing and clear evidence? (the most important one)
+        - Would some of TMLR's readers be interested in the findings?
+
+        GOOD PRACTICE
+        - Keep strengths and weaknesses concrete and tied to the paper.
+        - Do not reject for insufficient novelty or "lack of state-of-the-art results": TMLR does not require them.
+
+      """
+  }
+  Frame label="The two acceptance criteria" {
+    Choice id=claims_ok label="Are the claims supported by accurate, convincing and clear evidence?" required help="""
+        WHAT IS ASKED
+        The most important criterion at TMLR: does the evidence in the paper actually support what it claims?
+
+        HOW TO ANSWER
+        - Answer No when claims go beyond what the experiments or proofs show, or the evidence is unclear.
+        - Remember the fix: the authors can run more experiments OR narrow the claims. Say which gap you see, so they can close it.
+
+      """ {
+      Option value=yes label="Yes"
+      Option value=no label="No"
+    }
+    Markdown id=claims_explain label="Claims and evidence: explanation" required hint="Explain your answer, naming the claims and the gaps."
+    Choice id=audience_ok label="Would some individuals in TMLR's audience be interested in the findings?" required help="""
+        WHAT IS ASKED
+        Whether at least some researchers in the area would learn something from the paper. This is deliberately a low bar: TMLR does not ask for high impact or novelty.
+
+        HOW TO ANSWER
+        Answer No only if you cannot see who would care, or if the paper adds nothing to what is known.
+
+      """ {
+      Option value=yes label="Yes"
+      Option value=no label="No"
+    }
+    Markdown id=audience_explain label="Interest to the audience: explanation" required hint="Explain your answer."
+  }
+  Frame label="Requested changes and concerns" {
+    Markdown id=requested_changes label="Requested changes" required hint="List the changes you request, and mark which are CRITICAL to securing your recommendation and which would only STRENGTHEN the work." help="""
+        WHAT IS ASKED
+        What the authors must do for you to recommend acceptance (critical changes) and what would improve the paper but is optional.
+
+        GOOD PRACTICE
+        - Be specific and checkable: "add a comparison with X on dataset Y" or "restrict the claim in Section 4 to settings where Z holds".
+        - Keep the critical list short: the action editor decides based on whether critical changes were made.
+
+      """
+    Markdown id=broader_impact label="Broader impact concerns" hint="Concerns about the ethical implications of the work that should be addressed in a broader impact statement." help="""
+        WHAT IS ASKED
+        Flag serious ethical concerns so that the right people can look at them.
+
+        WHEN TO FLAG
+        Human-subject data without consent or approval, privacy violations, harmful applications, discriminatory data or methods, license violations, research-integrity problems. Describe the concern briefly and factually. If you have none, say so explicitly.
+      """
+  }
+  Frame label="Recommendation (after the discussion)" {
+    Choice id=recommendation label="Recommendation" hint="Submit your recommendation to the action editor once the author discussion has settled." help="""
+        WHAT IS ASKED
+        Your recommendation after reading the authors' responses. TMLR decisions are about whether the two criteria are met:
+        - Accept as is: both criteria met.
+        - Accept with minor revision: both met once a short, checkable list of changes is made.
+        - Reject: the claims are not supported and cannot be repaired by a feasible revision.
+
+        CALIBRATION
+        Scores are relative to the whole pool of submissions to this venue. Most papers sit in the middle of the scale; the extremes carry heavy weight in the discussion, so make sure your text defends them. Be consistent: a review that lists mostly weaknesses should not carry a high score, and the reverse.
+      """ {
+      Option value=accept label="Accept as is"
+      Option value=minor label="Accept with minor revision"
+      Option value=reject label="Reject (a resubmission may be encouraged)"
+    }
+  }
+  Frame label="Reviewer workbench (private - never exported)" private {
+    Info label="About this section" text="Your own notes and checklist. They are saved with the review but excluded from the exported text."
+    Checkbox id=chk_read label="First quick read done (abstract, introduction, figures, conclusions)" private
+    Checkbox id=chk_claims label="Listed the paper's claims and checked that each one is supported" private
+    Checkbox id=chk_method label="Checked the method / assumptions / key proof steps" private
+    Checkbox id=chk_exp label="Checked the evaluation: baselines, data, metrics, variance, ablations" private
+    Checkbox id=chk_related label="Checked related work and the novelty claims" private
+    Checkbox id=chk_repro label="Checked reproducibility (code, data, hyperparameters, appendix)" private
+    Checkbox id=chk_ethics label="Checked ethics, conflicts of interest and dual submission" private
+    Checkbox id=chk_consistent label="My scores are consistent with the text of my review" private
+    Textarea id=notes_questions label="Questions to ask the authors" private
+    Textarea id=notes_reading label="Notes while reading (page, issue)" private rows=10
+  }
+}

@@ -1,0 +1,115 @@
+# CHI-style review, built from the public CHI reviewing guidance (expertise; contribution and benefit; validity; originality;
+# presentation; recommendation A / ARR / RR / RRX / X as in the 2024 form). CHI changes its form between years: check yours.
+
+Sitemap label="ACM CHI - Review (2024)" venue="ACM CHI" kind=conference year=2024 fidelity=guidelines source="https://chi2025.acm.org/guide-to-a-successful-submission/" description="Expertise, contribution and benefit, validity, originality, presentation, recommendation (A / ARR / RR / RRX / X)." {
+  Frame label="Paper (private bookkeeping)" private {
+    Text id=paper_title label="Paper title" private
+    Text id=paper_id label="Submission number" private placeholder="e.g. 1234"
+  }
+  Info label="How to use this form" text="Fill this form field by field; click \"What does this mean?\" under any field for an explanation. Suggested order: read the paper once, take notes in the private workbench at the bottom, write the summary, then strengths and weaknesses, and pick the scores last so that they follow from your arguments. Never upload a submission to a third-party AI service, and check the venue's policy on LLM use in reviews."
+  Info label="About this map" text="Built from the venue's public reviewer guidelines (2024); the official review form could not be verified word for word, so field names and scales may differ from the form you receive. Treat this as a structured checklist and adapt it (Form menu, upload your own version) if your form differs. The recommendation categories are those of the CHI 2024 review form. CHI guidance stresses that your written review must match your numeric recommendation."
+  Frame label="Reviewer" {
+    Choice id=expertise label="Your expertise" required help="Be honest. Chairs use this to weigh reviews, and a lower expertise is fine when you explain what you could and could not judge." {
+      Option value=4 label="4 - Expert: I know the topic area and its literature well"
+      Option value=3 label="3 - Knowledgeable: I know the area but am not a specialist"
+      Option value=2 label="2 - Passing knowledge: I know a little about the area"
+      Option value=1 label="1 - No knowledge"
+    }
+  }
+  Frame label="Written review" {
+    Markdown id=summary label="Summary of the contribution" required hint="What does the paper contribute, and what would the community learn from it?" help="""
+        WHAT IS ASKED
+        A neutral summary of the paper in your own words: the problem, the approach, the evidence and the headline result.
+
+        WHY IT MATTERS
+        It shows the authors and the chair that you understood the paper, and gives anyone who skips the rest the context for your scores. If your summary is wrong, the paper was unclear.
+
+        GOOD PRACTICE
+        - 5-10 lines. No judgement here: save it for strengths and weaknesses.
+        - Describe claims as "the authors claim / show / propose".
+        - Test: could the authors read it and say "yes, that is what we did"?
+
+        COMMON MISTAKES
+        - Copying the abstract: it shows nothing about your understanding.
+        - Describing only the problem, not the contribution.
+        - Slipping opinions in ("a nice but incremental idea").
+      """
+    Markdown id=contribution label="Contribution and benefit" required hint="How significant is the contribution and how much will others benefit from it?" help="""
+        WHAT IS ASKED
+        Whether the work adds something that matters to the HCI community, and how many people could benefit from it (researchers, designers, practitioners).
+
+        GOOD PRACTICE
+        - HCI contributions are broad: empirical studies, systems, methods, theory, artefacts. Judge against the contribution type the paper claims.
+        - A paper need not report a statistically significant result to be valuable; judge whether the findings are credible and useful.
+
+      """
+    Markdown id=validity label="Validity of the work" required hint="Are the methods, analysis and conclusions sound?" help="""
+        WHAT IS ASKED
+        Whether you can trust the findings.
+
+        WHAT TO CHECK
+        - Study design matches the research question? Participants, tasks and procedure appropriate and described?
+        - Analysis suited to the data (qualitative or quantitative)? Conclusions limited to what the data support?
+        - Ethical handling of participants (consent, privacy, compensation)?
+
+      """
+    Markdown id=originality label="Originality" hint="How does the work differ from prior work?"
+    Markdown id=presentation label="Presentation and clarity" hint="Is the paper clearly written, well organised and appropriately formatted?"
+    Markdown id=strengths label="Strengths" help="""
+        WHAT IS ASKED
+        What the paper does well.
+
+        GOOD PRACTICE
+        - Be specific: point to a section, figure, table or theorem instead of "well written".
+        - Cover originality, technical quality, clarity and significance, in the terms the venue uses.
+        - Strengths are not filler: the chair uses them to see what you would defend in the discussion.
+      """
+    Markdown id=weaknesses label="Weaknesses" help="""
+        WHAT IS ASKED
+        The problems that stand between this paper and acceptance, and what it would take to fix them.
+
+        GOOD PRACTICE
+        - Order by importance. Separate MAJOR concerns (claims not supported, flawed evaluation, missing analysis) from MINOR ones (typos, wording).
+        - For each point: what the issue is, where it is, why it matters, what would resolve it.
+        - Criticise the work, never the authors. Separate facts ("Table 2 has no variance") from opinions ("I find the benchmark weak").
+        - Do not penalise a paper for something outside its stated scope, but do flag claims that go beyond the evidence.
+        - Do not ask for endless extra experiments: request those that test the central claim.
+      """
+    Markdown id=authors_suggestions label="Suggestions for the authors" hint="Constructive, specific advice. CHI reviews are read by authors who may revise and resubmit."
+  }
+  Frame label="Recommendation" {
+    Choice id=recommendation label="Overall recommendation" required hint="Your recommendation to the associate chair." help="""
+        WHAT IS ASKED
+        Where the paper stands after reading it.
+
+        HOW TO CHOOSE
+        - A / ARR: ready, or needs only minor changes you can list.
+        - RR: promising, but the revision needed is substantial and you would want to see it again.
+        - RRX: the revision needed is major and success is uncertain.
+        - X: fundamental flaws or not a contribution to HCI.
+        Your text must match your recommendation: if you rate highly but only list flaws, your review may be discounted.
+
+        CALIBRATION
+        Scores are relative to the whole pool of submissions to this venue. Most papers sit in the middle of the scale; the extremes carry heavy weight in the discussion, so make sure your text defends them. Be consistent: a review that lists mostly weaknesses should not carry a high score, and the reverse.
+      """ {
+      Option value=A label="Accept (A)"
+      Option value=ARR label="Accept with minor revisions (ARR)"
+      Option value=RR label="Revise and resubmit (RR)"
+      Option value=RRX label="Revise and resubmit or reject (RRX)"
+      Option value=X label="Reject (X)"
+    }
+  }
+  Frame label="Reviewer workbench (private - never exported)" private {
+    Info label="About this section" text="Your own notes and checklist. They are saved with the review but excluded from the exported text."
+    Checkbox id=chk_read label="First quick read done (abstract, introduction, figures, conclusions)" private
+    Checkbox id=chk_claims label="Listed the paper's claims and checked that each one is supported" private
+    Checkbox id=chk_method label="Checked the method / assumptions / key proof steps" private
+    Checkbox id=chk_exp label="Checked the evaluation: baselines, data, metrics, variance, ablations" private
+    Checkbox id=chk_related label="Checked related work and the novelty claims" private
+    Checkbox id=chk_repro label="Checked reproducibility (code, data, hyperparameters, appendix)" private
+    Checkbox id=chk_ethics label="Checked ethics, conflicts of interest and dual submission" private
+    Checkbox id=chk_consistent label="My scores are consistent with the text of my review" private
+    Textarea id=notes_questions label="Questions to ask the authors" private
+    Textarea id=notes_reading label="Notes while reading (page, issue)" private rows=10
+  }
+}

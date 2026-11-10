@@ -1,0 +1,149 @@
+# AAAI-26 style review, built from the public reviewer guidance (short summary, overall assessment starting with the conclusion,
+# evaluation questions on baselines, metrics and error analysis, reproducibility, ethics). The official form and its scale could not
+# be verified: this is a structured approximation.
+
+Sitemap label="AAAI 2026 - Review" venue="AAAI" kind=conference year=2026 fidelity=guidelines source="https://aaai.org/conference/aaai/aaai-26/review-process/" description="Summary, overall assessment first, strengths, weaknesses, technical evaluation, novelty, reproducibility, recommendation. Built from the public guidance." {
+  Frame label="Paper (private bookkeeping)" private {
+    Text id=paper_title label="Paper title" private
+    Text id=paper_id label="Submission number" private placeholder="e.g. 1234"
+  }
+  Info label="How to use this form" text="Fill this form field by field; click \"What does this mean?\" under any field for an explanation. Suggested order: read the paper once, take notes in the private workbench at the bottom, write the summary, then strengths and weaknesses, and pick the scores last so that they follow from your arguments. Never upload a submission to a third-party AI service, and check the venue's policy on LLM use in reviews."
+  Info label="About this map" text="Built from the venue's public reviewer guidelines (2026); the official review form could not be verified word for word, so field names and scales may differ from the form you receive. Treat this as a structured checklist and adapt it (Form menu, upload your own version) if your form differs. AAAI does not prescribe a fixed review format; its guidance recommends a short summary (about 4-10 sentences), then an overall assessment whose first sentence states your conclusion."
+  Frame label="Written review" {
+    Markdown id=summary label="Summary" required hint="About 4-10 sentences: what the paper does, neutrally." help="""
+        WHAT IS ASKED
+        A neutral summary of the paper in your own words: the problem, the approach, the evidence and the headline result.
+
+        WHY IT MATTERS
+        It shows the authors and the chair that you understood the paper, and gives anyone who skips the rest the context for your scores. If your summary is wrong, the paper was unclear.
+
+        GOOD PRACTICE
+        - 5-10 lines. No judgement here: save it for strengths and weaknesses.
+        - Describe claims as "the authors claim / show / propose".
+        - Test: could the authors read it and say "yes, that is what we did"?
+
+        COMMON MISTAKES
+        - Copying the abstract: it shows nothing about your understanding.
+        - Describing only the problem, not the contribution.
+        - Slipping opinions in ("a nice but incremental idea").
+      """
+    Markdown id=overall_assessment label="Overall assessment" required hint="Start with one sentence that states your overall conclusion, then justify it." help="""
+        WHAT IS ASKED
+        Your verdict and the reasoning behind it. AAAI's reviewer guidance asks that the FIRST SENTENCE states the overall conclusion (for example "This is a technically solid paper with limited novelty, and I lean towards weak accept").
+
+        GOOD PRACTICE
+        - Then give the 2-3 reasons that decide it.
+        - Make the rest of the review consistent with this paragraph.
+
+      """
+    Markdown id=strengths label="Strengths" required help="""
+        WHAT IS ASKED
+        What the paper does well.
+
+        GOOD PRACTICE
+        - Be specific: point to a section, figure, table or theorem instead of "well written".
+        - Cover originality, technical quality, clarity and significance, in the terms the venue uses.
+        - Strengths are not filler: the chair uses them to see what you would defend in the discussion.
+      """
+    Markdown id=weaknesses label="Weaknesses" required help="""
+        WHAT IS ASKED
+        The problems that stand between this paper and acceptance, and what it would take to fix them.
+
+        GOOD PRACTICE
+        - Order by importance. Separate MAJOR concerns (claims not supported, flawed evaluation, missing analysis) from MINOR ones (typos, wording).
+        - For each point: what the issue is, where it is, why it matters, what would resolve it.
+        - Criticise the work, never the authors. Separate facts ("Table 2 has no variance") from opinions ("I find the benchmark weak").
+        - Do not penalise a paper for something outside its stated scope, but do flag claims that go beyond the evidence.
+        - Do not ask for endless extra experiments: request those that test the central claim.
+      """
+    Markdown id=technical_evaluation label="Technical soundness and empirical evaluation" required hint="Baselines, metrics, analysis. Are the claims supported?" help="""
+        WHAT IS ASKED
+        Whether the technical content is correct and the evidence convincing. AAAI's guidance suggests asking:
+        - Does the empirical evaluation include appropriate baselines and comparisons with the state of the art?
+        - Are the metrics well established and appropriate for the claim?
+        - Does the paper analyse errors and failure cases, or only show successes?
+        - Are the assumptions stated and the theory (if any) correct?
+
+      """
+    Markdown id=novelty_significance label="Novelty and significance" required hint="How different is it from prior work and who will care?" help="""
+        WHAT IS ASKED
+        Originality and impact. Name the closest prior work you know and say how the paper differs. AAAI covers all areas of AI, so judge significance for the paper's own subfield, not just your own.
+
+      """
+    Markdown id=clarity label="Clarity and presentation" hint="Organisation, notation, figures, and whether the paper can be followed."
+    Markdown id=reproducibility label="Reproducibility" hint="AAAI authors fill in a reproducibility checklist; does the paper match it?" help="""
+        WHAT IS ASKED
+        Whether another group could reproduce the results from the paper and its supplementary material.
+
+        WHAT TO CHECK
+        - Code and data available or promised? Hyperparameters, seeds, compute, preprocessing described?
+        - Are random seeds and variance reported, or is a single run presented as a result?
+        - Are datasets and software licensed and cited correctly?
+      """
+    Markdown id=questions label="Questions for the authors" help="""
+        WHAT IS ASKED
+        Questions whose answers could change your assessment.
+
+        GOOD PRACTICE
+        - Number them so the authors can answer one by one in the rebuttal.
+        - Ask for clarification of what is unclear, or evidence for a specific claim. Avoid requests that need weeks of new work.
+        - If nothing could change your mind, say so and explain why in the review instead.
+      """
+    Markdown id=ethics label="Ethical concerns" hint="AAAI has ethical guidelines for reviewers; flag serious concerns or write that you have none." help="""
+        WHAT IS ASKED
+        Flag serious ethical concerns so that the right people can look at them.
+
+        WHEN TO FLAG
+        Human-subject data without consent or approval, privacy violations, harmful applications, discriminatory data or methods, license violations, research-integrity problems. Describe the concern briefly and factually. If you have none, say so explicitly.
+      """
+  }
+  Frame label="Recommendation" {
+    Choice id=overall label="Overall recommendation" required hint="Your recommendation for the paper." help="""
+        WHAT IS ASKED
+        Whether the paper should be accepted. The scale here is a standard six-level one: AAAI's own labels could not be verified, so adapt it to the form you receive.
+
+        CALIBRATION
+        Scores are relative to the whole pool of submissions to this venue. Most papers sit in the middle of the scale; the extremes carry heavy weight in the discussion, so make sure your text defends them. Be consistent: a review that lists mostly weaknesses should not carry a high score, and the reverse.
+      """ {
+      Option value=6 label="6: Strong accept"
+      Option value=5 label="5: Accept"
+      Option value=4 label="4: Weak accept"
+      Option value=3 label="3: Weak reject"
+      Option value=2 label="2: Reject"
+      Option value=1 label="1: Strong reject"
+    }
+    Choice id=confidence label="Confidence" required hint="How confident are you in this review?" help="""
+        WHAT IS ASKED
+        How much the chair should trust YOUR review. It is a statement about you, not about the paper.
+
+        WHY IT MATTERS
+        Chairs weight reviews by confidence. Overstating it lets a mistaken review count too much; understating it wastes a good one. Honesty here is a sign of a good reviewer, and being new to an area is a legitimate reason for a lower number.
+
+        HOW TO CHOOSE
+        Ask yourself:
+        - Do I know this subarea and its main prior work well enough to judge novelty?
+        - Did I read the whole paper, including the appendix, and check the technical parts?
+        - Did I understand the central contribution?
+        If you could not verify proofs or are unsure about prior work, choose 3 or lower and say precisely what you did not check in the review.
+      """ {
+      Option value=5 label="5: The reviewer is absolutely certain that the evaluation is correct and very familiar with the relevant literature"
+      Option value=4 label="4: The reviewer is confident but not absolutely certain that the evaluation is correct"
+      Option value=3 label="3: The reviewer is fairly confident that the evaluation is correct"
+      Option value=2 label="2: The reviewer is willing to defend the evaluation, but it is quite likely that the reviewer did not understand central parts of the paper"
+      Option value=1 label="1: The reviewer's evaluation is an educated guess"
+    }
+  }
+  Frame label="Reviewer workbench (private - never exported)" private {
+    Info label="About this section" text="Your own notes and checklist. They are saved with the review but excluded from the exported text."
+    Checkbox id=chk_read label="First quick read done (abstract, introduction, figures, conclusions)" private
+    Checkbox id=chk_claims label="Listed the paper's claims and checked that each one is supported" private
+    Checkbox id=chk_method label="Checked the method / assumptions / key proof steps" private
+    Checkbox id=chk_exp label="Checked the evaluation: baselines, data, metrics, variance, ablations" private
+    Checkbox id=chk_related label="Checked related work and the novelty claims" private
+    Checkbox id=chk_repro label="Checked reproducibility (code, data, hyperparameters, appendix)" private
+    Checkbox id=chk_ethics label="Checked ethics, conflicts of interest and dual submission" private
+    Checkbox id=chk_consistent label="My scores are consistent with the text of my review" private
+    Textarea id=notes_questions label="Questions to ask the authors" private
+    Textarea id=notes_reading label="Notes while reading (page, issue)" private rows=10
+  }
+}

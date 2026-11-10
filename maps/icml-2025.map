@@ -1,0 +1,165 @@
+# ICML 2025 review, modelled on the published form (Summary; Claims and Evidence; Methods and Evaluation Criteria;
+# Theoretical Claims; Experimental Designs or Analyses; Supplementary Material; Relation to Broader Scientific Literature;
+# Essential References Not Discussed; Other Strengths and Weaknesses; Other Comments; Questions; Ethics;
+# Overall Recommendation 1-5). Not an official form: check the one you receive.
+
+Sitemap label="ICML 2025 - Review" venue="ICML" kind=conference year=2025 fidelity=form source="https://icml.cc/Conferences/2025/ReviewerInstructions" description="Structured review: summary, claims and evidence, methods, theory, experiments, supplementary material, related literature, 1-5 recommendation." {
+  Frame label="Paper (private bookkeeping)" private {
+    Text id=paper_title label="Paper title" private
+    Text id=paper_id label="Submission number" private placeholder="e.g. 1234"
+  }
+  Info label="How to use this form" text="Fill this form field by field; click \"What does this mean?\" under any field for an explanation. Suggested order: read the paper once, take notes in the private workbench at the bottom, write the summary, then strengths and weaknesses, and pick the scores last so that they follow from your arguments. Never upload a submission to a third-party AI service, and check the venue's policy on LLM use in reviews."
+  Info label="About this map" text="Modelled on the review form published by the venue for 2025. Venues change wording and scales between years and tracks: when you copy your answers into the real system, follow the form you were given."
+  Frame label="Written review" {
+    Markdown id=summary label="Summary" required hint="Briefly summarise the paper and its contributions, without critique." help="""
+        WHAT IS ASKED
+        A neutral summary of the paper in your own words: the problem, the approach, the evidence and the headline result.
+
+        WHY IT MATTERS
+        It shows the authors and the chair that you understood the paper, and gives anyone who skips the rest the context for your scores. If your summary is wrong, the paper was unclear.
+
+        GOOD PRACTICE
+        - 5-10 lines. No judgement here: save it for strengths and weaknesses.
+        - Describe claims as "the authors claim / show / propose".
+        - Test: could the authors read it and say "yes, that is what we did"?
+
+        COMMON MISTAKES
+        - Copying the abstract: it shows nothing about your understanding.
+        - Describing only the problem, not the contribution.
+        - Slipping opinions in ("a nice but incremental idea").
+      """
+    Markdown id=claims_evidence label="Claims and evidence" required hint="Are the claims supported by clear and convincing evidence? Which ones are problematic, and why?" help="""
+        WHAT IS ASKED
+        Whether what the paper CLAIMS is actually backed by what it SHOWS.
+
+        HOW TO DO IT
+        - List the main claims (abstract, introduction, conclusion) and check each against the evidence: theorem, experiment, table.
+        - Flag overclaiming: "robust" shown on three tasks, "general" shown on one dataset, "state of the art" without strong baselines.
+        - Say which claims you believe and which you do not, and why.
+
+      """
+    Markdown id=methods_eval label="Methods and evaluation criteria" required hint="Do the proposed methods and evaluation criteria (benchmark datasets, metrics) make sense for the problem?" help="""
+        WHAT IS ASKED
+        Whether the approach and the way it is measured fit the problem being solved.
+
+        WHAT TO CHECK
+        - Is the method a sensible answer to the stated problem?
+        - Are the datasets and benchmarks appropriate and standard enough to compare against others? Are the metrics the ones that matter for the claim?
+        - For application-driven papers: does the evaluation reflect real use, not just a convenient proxy?
+
+      """
+    Markdown id=theory label="Theoretical claims" hint="Did you check the correctness of any proofs for theoretical claims? Discuss any issues." help="""
+        WHAT IS ASKED
+        Whether proofs and derivations are correct.
+
+        GOOD PRACTICE
+        - Say which proofs you actually checked and to what depth. "I checked Theorem 1 in the main text but not the appendix" is a perfectly good answer.
+        - If there are no theoretical claims, write "Not applicable".
+        - Point to the exact step where something looks wrong, and say whether it looks fixable.
+
+      """
+    Markdown id=experimental_design label="Experimental designs or analyses" hint="Did you check the soundness and validity of the experimental designs or analyses? Discuss any issues." help="""
+        WHAT IS ASKED
+        Whether the experiments could actually support the conclusions.
+
+        WHAT TO CHECK
+        - Baselines: strong, recent, tuned as carefully as the proposed method? Same compute and data?
+        - Statistics: several seeds, variance or confidence intervals, significance where results are close?
+        - Confounders, data leakage, train/test overlap, cherry-picked settings, missing ablations?
+
+      """
+    Markdown id=supplementary label="Supplementary material" hint="Did you review the supplementary material? Which parts, and with what outcome?" help="""
+        WHAT IS ASKED
+        A short statement on whether you read the appendix, code or data and what you found.
+        Reviewers are not obliged to read all of it, but if a claim relies on it, look at that part.
+
+      """
+    Markdown id=literature label="Relation to broader scientific literature" hint="How do the key contributions relate to the broader scientific literature?" help="""
+        WHAT IS ASKED
+        Where the paper sits in the field: what it builds on, what it improves, and whether it positions itself fairly.
+
+        GOOD PRACTICE
+        - Name the closest prior work you know and say how the paper differs.
+        - If you doubt novelty, give a reference, not a feeling.
+
+      """
+    Markdown id=missing_refs label="Essential references not discussed" hint="Are there related works that are essential but missing from the citations?" help="""
+        WHAT IS ASKED
+        Prior work that is ESSENTIAL to understand the paper's contribution and is missing. This is not a place to suggest your own papers. Give titles or links, and say why each matters.
+        Write "None" if you found none.
+
+      """
+    Markdown id=other_strengths_weaknesses label="Other strengths and weaknesses" hint="Originality, significance and clarity, and anything not covered above." help="""
+        WHAT IS ASKED
+        What the paper does well.
+
+        GOOD PRACTICE
+        - Be specific: point to a section, figure, table or theorem instead of "well written".
+        - Cover originality, technical quality, clarity and significance, in the terms the venue uses.
+        - Strengths are not filler: the chair uses them to see what you would defend in the discussion.
+
+        WHAT IS ASKED
+        The problems that stand between this paper and acceptance, and what it would take to fix them.
+
+        GOOD PRACTICE
+        - Order by importance. Separate MAJOR concerns (claims not supported, flawed evaluation, missing analysis) from MINOR ones (typos, wording).
+        - For each point: what the issue is, where it is, why it matters, what would resolve it.
+        - Criticise the work, never the authors. Separate facts ("Table 2 has no variance") from opinions ("I find the benchmark weak").
+        - Do not penalise a paper for something outside its stated scope, but do flag claims that go beyond the evidence.
+        - Do not ask for endless extra experiments: request those that test the central claim.
+      """
+    Markdown id=other_comments label="Other comments or suggestions" hint="Typos, presentation, and anything else the authors should know."
+    Markdown id=questions label="Questions for authors" hint="Questions whose answers could change your assessment." help="""
+        WHAT IS ASKED
+        Questions whose answers could change your assessment.
+
+        GOOD PRACTICE
+        - Number them so the authors can answer one by one in the rebuttal.
+        - Ask for clarification of what is unclear, or evidence for a specific claim. Avoid requests that need weeks of new work.
+        - If nothing could change your mind, say so and explain why in the review instead.
+      """
+  }
+  Frame label="Ethics and conduct" {
+    Markdown id=ethics label="Ethical review concerns" hint="Flag potential ethical concerns, or write that you have none." help="""
+        WHAT IS ASKED
+        Flag serious ethical concerns so that the right people can look at them.
+
+        WHEN TO FLAG
+        Human-subject data without consent or approval, privacy violations, harmful applications, discriminatory data or methods, license violations, research-integrity problems. Describe the concern briefly and factually. If you have none, say so explicitly.
+      """
+    Checkbox id=code_of_conduct label="I acknowledge that I have read the ICML code of conduct for reviewers and that my review follows it" required help="Reviews are confidential. Do not share the paper or your review, do not upload the paper to third-party tools, and declare conflicts of interest to the chairs. Check ICML's own rules on the use of LLMs."
+  }
+  Frame label="Recommendation" {
+    Choice id=overall label="Overall recommendation" required hint="Your overall recommendation for the paper." help="""
+        WHAT IS ASKED
+        Whether the paper should be accepted, taking everything above into account.
+
+        HOW TO CHOOSE
+        - Strong accept / Accept: you would argue for it. Accept means solid and clearly above the bar; Strong accept is exceptional.
+        - Weak accept / Weak reject: genuinely close. Pick the side you lean to, and state in your review what would move you to the other.
+        - Reject: significant problems that a revision could not fix in time.
+
+        CALIBRATION
+        Scores are relative to the whole pool of submissions to this venue. Most papers sit in the middle of the scale; the extremes carry heavy weight in the discussion, so make sure your text defends them. Be consistent: a review that lists mostly weaknesses should not carry a high score, and the reverse.
+      """ {
+      Option value=5 label="5: Strong accept"
+      Option value=4 label="4: Accept"
+      Option value=3 label="3: Weak accept (leaning towards accepting, but could also be rejected)"
+      Option value=2 label="2: Weak reject (leaning towards rejecting, but could also be accepted)"
+      Option value=1 label="1: Reject"
+    }
+  }
+  Frame label="Reviewer workbench (private - never exported)" private {
+    Info label="About this section" text="Your own notes and checklist. They are saved with the review but excluded from the exported text."
+    Checkbox id=chk_read label="First quick read done (abstract, introduction, figures, conclusions)" private
+    Checkbox id=chk_claims label="Listed the paper's claims and checked that each one is supported" private
+    Checkbox id=chk_method label="Checked the method / assumptions / key proof steps" private
+    Checkbox id=chk_exp label="Checked the evaluation: baselines, data, metrics, variance, ablations" private
+    Checkbox id=chk_related label="Checked related work and the novelty claims" private
+    Checkbox id=chk_repro label="Checked reproducibility (code, data, hyperparameters, appendix)" private
+    Checkbox id=chk_ethics label="Checked ethics, conflicts of interest and dual submission" private
+    Checkbox id=chk_consistent label="My scores are consistent with the text of my review" private
+    Textarea id=notes_questions label="Questions to ask the authors" private
+    Textarea id=notes_reading label="Notes while reading (page, issue)" private rows=10
+  }
+}

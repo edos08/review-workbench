@@ -1,0 +1,162 @@
+# ACL Rolling Review (the review process for ACL, EMNLP, NAACL, EACL, AACL), built from the public reviewer guidance and
+# the commonly used form: paper summary, strengths, weaknesses, comments/suggestions/typos, soundness, excitement,
+# overall assessment, confidence, ethics, reproducibility, author-identity disclosure. ARR changes its scales between
+# cycles: check the form you receive.
+
+Sitemap label="ACL Rolling Review (ACL / EMNLP / NAACL) - Review" venue="ACL / EMNLP / NAACL (ARR)" kind=conference year=2025 fidelity=guidelines source="https://aclrollingreview.org/reviewerguidelines" description="ARR review: paper summary, strengths, weaknesses, comments, soundness, excitement, overall assessment, confidence, ethics, anonymity." {
+  Frame label="Paper (private bookkeeping)" private {
+    Text id=paper_title label="Paper title" private
+    Text id=paper_id label="Submission number" private placeholder="e.g. 1234"
+  }
+  Info label="How to use this form" text="Fill this form field by field; click \"What does this mean?\" under any field for an explanation. Suggested order: read the paper once, take notes in the private workbench at the bottom, write the summary, then strengths and weaknesses, and pick the scores last so that they follow from your arguments. Never upload a submission to a third-party AI service, and check the venue's policy on LLM use in reviews."
+  Info label="About this map" text="Built from the venue's public reviewer guidelines (2025); the official review form could not be verified word for word, so field names and scales may differ from the form you receive. Treat this as a structured checklist and adapt it (Form menu, upload your own version) if your form differs. ACL Rolling Review is shared by ACL, EMNLP, NAACL, EACL and AACL: the same review is reused across cycles. The wording of the scales below is the commonly used one; ARR changes it between cycles."
+  Frame label="Written review" {
+    Markdown id=summary label="Paper summary" required hint="Describe what this paper is about. This should help SACs/AEs/PCs understand the paper and should not be used to criticise it." help="""
+        WHAT IS ASKED
+        A neutral summary of the paper in your own words: the problem, the approach, the evidence and the headline result.
+
+        WHY IT MATTERS
+        It shows the authors and the chair that you understood the paper, and gives anyone who skips the rest the context for your scores. If your summary is wrong, the paper was unclear.
+
+        GOOD PRACTICE
+        - 5-10 lines. No judgement here: save it for strengths and weaknesses.
+        - Describe claims as "the authors claim / show / propose".
+        - Test: could the authors read it and say "yes, that is what we did"?
+
+        COMMON MISTAKES
+        - Copying the abstract: it shows nothing about your understanding.
+        - Describing only the problem, not the contribution.
+        - Slipping opinions in ("a nice but incremental idea").
+      """
+    Markdown id=strengths label="Summary of strengths" required hint="What are the major reasons to publish this paper at a selective *ACL venue?" help="""
+        WHAT IS ASKED
+        What the paper does well.
+
+        GOOD PRACTICE
+        - Be specific: point to a section, figure, table or theorem instead of "well written".
+        - Cover originality, technical quality, clarity and significance, in the terms the venue uses.
+        - Strengths are not filler: the chair uses them to see what you would defend in the discussion.
+      """
+    Markdown id=weaknesses label="Summary of weaknesses" required hint="What are the major reasons NOT to publish this paper at a selective *ACL venue?" help="""
+        WHAT IS ASKED
+        The problems that stand between this paper and acceptance, and what it would take to fix them.
+
+        GOOD PRACTICE
+        - Order by importance. Separate MAJOR concerns (claims not supported, flawed evaluation, missing analysis) from MINOR ones (typos, wording).
+        - For each point: what the issue is, where it is, why it matters, what would resolve it.
+        - Criticise the work, never the authors. Separate facts ("Table 2 has no variance") from opinions ("I find the benchmark weak").
+        - Do not penalise a paper for something outside its stated scope, but do flag claims that go beyond the evidence.
+        - Do not ask for endless extra experiments: request those that test the central claim.
+      """
+    Markdown id=comments label="Comments, suggestions and typos" hint="If you have any comments to the authors about how they may improve their paper, other than addressing the concerns above, please list them here." help="""
+        WHAT IS ASKED
+        Helpful, non-decisive remarks: missing references, presentation, typos, clarity, formatting. Keep them separate from the major points so the AE can see what drives your score.
+
+      """
+  }
+  Frame label="Scores" {
+    Choice id=soundness label="Soundness" required hint="How sound and thorough is this study? Does it provide adequate support for its main claims?" help="""
+        WHAT IS ASKED
+        Whether the study is correct and supports its claims.
+
+        WHAT TO CHECK
+        - Are experiments, annotations and analyses adequate? Are claims backed? Are datasets, baselines and metrics appropriate?
+
+        HOW TO CHOOSE
+        Judge the paper as a study of its type: a resource paper, a position paper and a method paper are judged differently.
+        Score each dimension on its own: a paper can be sound but dull, or exciting but badly written.
+
+      """ {
+      Option value=5 label="5 = Excellent: This study is one of the most thorough I have seen, given its type."
+      Option value=4 label="4 = Strong: This study provides sufficient support for all of its claims. Some extra experiments could be nice, but not essential."
+      Option value=3 label="3 = Acceptable: This study provides sufficient support for its major claims/arguments. Some minor points may need extra support or details."
+      Option value=2 label="2 = Borderline: Some of the main claims/arguments are not sufficiently supported; there are major technical/methodological problems."
+      Option value=1 label="1 = Poor: This study is not yet sufficiently thorough to warrant publication or is not relevant to ACL."
+    }
+    Choice id=excitement label="Excitement" required hint="How exciting is this paper for you?" help="""
+        WHAT IS ASKED
+        A subjective measure of how interesting and useful the paper is to the community. It is deliberately separate from soundness: a technically sound but dull paper and an exciting but flawed one both exist.
+
+      """ {
+      Option value=5 label="5 = Highly exciting: I would recommend this paper to others and/or attend its presentation in a conference."
+      Option value=4 label="4 = Exciting: I would mention this paper to others and/or make an effort to attend its presentation in a conference."
+      Option value=3 label="3 = Interesting: I might mention some points of this paper to others and/or attend its presentation in a conference if there's time."
+      Option value=2 label="2 = Potentially interesting: this paper does not resonate with me, but it might with others in the *ACL community."
+      Option value=1 label="1 = Not exciting: this paper does not resonate with me, and I don't think it would with others in the *ACL community."
+    }
+    Choice id=overall label="Overall assessment" required hint="If this paper was committed to an *ACL conference, would it be a good fit? This reflects your overall view of the paper's merit." help="""
+        WHAT IS ASKED
+        Where this version of the paper belongs: the main conference, Findings, or back to the authors for another cycle. ARR scores are reused by the venues the authors commit to, so write for the whole community.
+
+        CALIBRATION
+        Scores are relative to the whole pool of submissions to this venue. Most papers sit in the middle of the scale; the extremes carry heavy weight in the discussion, so make sure your text defends them. Be consistent: a review that lists mostly weaknesses should not carry a high score, and the reverse.
+      """ {
+      Option value=5 label="5 = Award-level: consider for an award"
+      Option value=4.5 label="4.5 = Strong conference paper (borderline award)"
+      Option value=4 label="4 = Conference paper: should be accepted to the main conference"
+      Option value=3.5 label="3.5 = Findings paper (leaning conference)"
+      Option value=3 label="3 = Findings paper: could be accepted to Findings"
+      Option value=2.5 label="2.5 = Resubmit next cycle (leaning Findings)"
+      Option value=2 label="2 = Resubmit next cycle: major revisions needed"
+      Option value=1.5 label="1.5 = Do not resubmit (leaning resubmit)"
+      Option value=1 label="1 = Do not resubmit: serious flaws"
+    }
+    Choice id=confidence label="Confidence" required help="""
+        WHAT IS ASKED
+        How much the chair should trust YOUR review. It is a statement about you, not about the paper.
+
+        WHY IT MATTERS
+        Chairs weight reviews by confidence. Overstating it lets a mistaken review count too much; understating it wastes a good one. Honesty here is a sign of a good reviewer, and being new to an area is a legitimate reason for a lower number.
+
+        HOW TO CHOOSE
+        Ask yourself:
+        - Do I know this subarea and its main prior work well enough to judge novelty?
+        - Did I read the whole paper, including the appendix, and check the technical parts?
+        - Did I understand the central contribution?
+        If you could not verify proofs or are unsure about prior work, choose 3 or lower and say precisely what you did not check in the review.
+      """ {
+      Option value=5 label="5: The reviewer is absolutely certain that the evaluation is correct and very familiar with the relevant literature"
+      Option value=4 label="4: The reviewer is confident but not absolutely certain that the evaluation is correct"
+      Option value=3 label="3: The reviewer is fairly confident that the evaluation is correct"
+      Option value=2 label="2: The reviewer is willing to defend the evaluation, but it is quite likely that the reviewer did not understand central parts of the paper"
+      Option value=1 label="1: The reviewer's evaluation is an educated guess"
+    }
+  }
+  Frame label="Ethics, reproducibility and anonymity" {
+    Markdown id=ethics label="Ethical concerns" hint="Please describe any ethical concerns, or write that you have none." help="""
+        WHAT IS ASKED
+        Flag serious ethical concerns so that the right people can look at them.
+
+        WHEN TO FLAG
+        Human-subject data without consent or approval, privacy violations, harmful applications, discriminatory data or methods, license violations, research-integrity problems. Describe the concern briefly and factually. If you have none, say so explicitly.
+      """
+    Markdown id=reproducibility label="Reproducibility" hint="Could the main results be reproduced from the paper, code and data provided?" help="""
+        WHAT IS ASKED
+        Whether another group could reproduce the results from the paper and its supplementary material.
+
+        WHAT TO CHECK
+        - Code and data available or promised? Hyperparameters, seeds, compute, preprocessing described?
+        - Are random seeds and variance reported, or is a single run presented as a result?
+        - Are datasets and software licensed and cited correctly?
+      """
+    Choice id=author_identity label="Knowledge of or educated guess at author identity" hint="Anonymity is part of the process: report it honestly." help="Disclosing that you know or suspect the authors helps the chairs spot conflicts of interest. It does not penalise you." {
+      Option value=no label="No, I do not know or suspect who the authors are"
+      Option value=guess label="Yes, I have an educated guess who the authors are"
+      Option value=know label="Yes, I know who the authors are"
+    }
+    Checkbox id=best_paper label="I would recommend this paper for a best paper award" hint="Optional."
+  }
+  Frame label="Reviewer workbench (private - never exported)" private {
+    Info label="About this section" text="Your own notes and checklist. They are saved with the review but excluded from the exported text."
+    Checkbox id=chk_read label="First quick read done (abstract, introduction, figures, conclusions)" private
+    Checkbox id=chk_claims label="Listed the paper's claims and checked that each one is supported" private
+    Checkbox id=chk_method label="Checked the method / assumptions / key proof steps" private
+    Checkbox id=chk_exp label="Checked the evaluation: baselines, data, metrics, variance, ablations" private
+    Checkbox id=chk_related label="Checked related work and the novelty claims" private
+    Checkbox id=chk_repro label="Checked reproducibility (code, data, hyperparameters, appendix)" private
+    Checkbox id=chk_ethics label="Checked ethics, conflicts of interest and dual submission" private
+    Checkbox id=chk_consistent label="My scores are consistent with the text of my review" private
+    Textarea id=notes_questions label="Questions to ask the authors" private
+    Textarea id=notes_reading label="Notes while reading (page, issue)" private rows=10
+  }
+}

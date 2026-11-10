@@ -27,7 +27,7 @@ submissions) in a browser instead of a Word file or a web form you cannot save.
 3. [Deploying with Dockhand (or any Git-based container manager)](#deploying-with-dockhand-or-any-git-based-container-manager)
 4. [Using the app](#using-the-app)
 5. [Maps: defining a review form](#maps-defining-a-review-form)
-6. [Example maps](#example-maps)
+6. [Bundled review forms](#bundled-review-forms)
 7. [Data, backups and moving between machines](#data-backups-and-moving-between-machines)
 8. [Security and privacy](#security-and-privacy)
 9. [Troubleshooting](#troubleshooting)
@@ -189,11 +189,15 @@ server press **Restore from backup** and pick the file.
 
 ### Home page
 
-- **Start review** creates a review from the default map.
-- **Saved reviews:** open, download a **Backup (.zip)**, or delete (this removes the review's folder, including its
-  map and PDF).
-- **Restore from backup** imports a `.zip` produced by the backup button (or an old single-file `.json`) as a new
-  review.
+- **Start a new review:** open the **Review form** dropdown (type to search, grouped into conferences, journals,
+  general and *My maps*), check the preview on the right (how many fields, how closely it follows the venue's own
+  form, a link to the venue's guidelines), optionally type the paper's title, and press **Start review**. The form
+  you used last is remembered.
+- **Add my own map…** adds a map file of yours to the dropdown (see [Maps](#maps-defining-a-review-form)).
+- **Your reviews:** one card per review with its form, last update, whether a PDF is attached, and a progress bar of
+  required fields. Filter by *All / In progress / Complete*, search by title, **Open**, download a **Backup**, or
+  **Delete** (this removes the review's folder, including its map and PDF).
+- **Restore from backup** imports a `.zip` made by the backup button (or an old single-file `.json`) as a new review.
 
 ### Writing a review
 
@@ -231,14 +235,17 @@ divider to resize).
 Annotations, page and zoom are saved with the review. The viewer is [PDF.js](https://mozilla.github.io/pdf.js/)
 bundled with the app: it works offline and nothing is sent to third parties.
 
-### Map menu (per review)
+### Form menu (per review)
 
-Each review carries its **own copy of its map**, so a review always stays openable and a backup is complete.
+Each review carries its **own copy of its map**, so a review always stays openable and a backup is complete. The
+**Form** menu in the top bar lets you change it:
 
-- **Upload a map…** replaces this review's map. Your answers are kept: fields are matched by `id`, so answers to
-  fields that no longer exist are simply not shown (they stay in the saved file).
+- **Switch to another form** applies another template to this review. Your answers are kept wherever the field ids
+  match (the bundled forms share `summary`, `strengths`, `weaknesses`, `questions`, `confidence` and the paper title),
+  so moving a review between venues keeps most of your text.
+- **Upload a map file…** replaces this review's map with a file from your computer.
 - **Download this map** saves the map file.
-- **Reset to default map** goes back to the default.
+- **Reset to "<form>"** goes back to the template the review is based on.
 
 A map with a syntax error is rejected with an explanation (usually the line number) and the review keeps its previous map.
 
@@ -322,32 +329,84 @@ The most useful maps explain each field to someone reviewing for the first time.
     COMMON MISTAKES
     - What first-time reviewers get wrong.
 
-### Setting the default map
+### Your own maps (the "My maps" group)
 
-New reviews copy `data/default.map`. It is created on first start from `defaults/default.map`, which reproduces the
-OpenReview "Official Review" form of AAMAS 2027 with explanations for every field. To use another form as the
-default, replace the file `data/default.map` in your data folder (copy any map over it); existing reviews keep the map
-they already have. The explanations in the bundled map are general reviewing guidance: always check them against the
-guidelines of the venue you are reviewing for.
+A map you add on the home page (**Add my own map…**) is stored in `data/maps/<name>.map`, listed under **My maps** in
+the dropdown, and can be removed again from its preview. You can also drop `.map` files straight into that folder.
+A file with the same name as a bundled form replaces it in the list until you remove it. Reviews already created from
+a map keep their own copy.
+
+Besides the usual widgets, a map can describe itself for the dropdown with attributes on its `Sitemap`:
+
+| Attribute | Meaning |
+|---|---|
+| `label` | Name shown in the list |
+| `venue` | Venue or journal, shown under the name |
+| `kind` | `conference`, `journal` or `general` (decides the group) |
+| `year` | Year the form is modelled on |
+| `fidelity` | `form` (follows the published form), `guidelines` (built from public guidance, verify wording) or `generic` |
+| `source` | URL of the venue's reviewer guidelines (the "Venue guidelines" link) |
+| `description` | One or two sentences shown in the preview |
 
 ---
 
-## Example maps
+## Bundled review forms
 
-The folder [`examples/`](examples) holds maps you can learn from or adapt. They are generic and are **not official
-forms of any journal or conference**. Load one in a review via *Map → Upload a map…*, or copy it to
-`data/default.map` to make it the default for new reviews.
+The app ships with 21 forms in [`maps/`](maps). Each one explains every field in plain language ("What does
+this mean?") and ends with a private reviewer workbench (checklist and notes that are never exported).
 
-| File | What it is |
-|---|---|
-| [`minimal.map`](examples/minimal.map) | Every widget type once, with comments on each line. Start here when writing your own. |
-| [`conference-simple.map`](examples/conference-simple.map) | Compact conference review: summary, strengths, weaknesses, questions, a 1-6 score, confidence, award flag. |
-| [`journal-article.map`](examples/journal-article.map) | Referee report: comments to authors, confidential note to the editor, four 1-4 ratings, accept / minor / major / reject. |
-| [`workshop-short.map`](examples/workshop-short.map) | A very short review for workshops and extended abstracts. |
+**How accurate are they?** Venues change their review forms every year and rarely publish them as a file, so each
+form carries an accuracy badge:
 
-To make a map for a new venue: copy the closest example, rename the `label`, and change the fields and scales to
-match the venue's own form (field names and options exactly as the venue words them, so pasting is easy). Add `help`
-text where a newcomer would hesitate. Maps are welcome contributions.
+- **follows the published form:** modelled on the form the venue publishes (field names, scales and their labels).
+- **from public guidelines:** built from the venue's public reviewer guidance. The official form could not be
+  verified word for word, so field names or scales may differ. Treat it as a structured checklist.
+- **generic:** not tied to a venue.
+
+Whatever the badge, **follow the form you were actually given** when you copy your answers into the venue's system,
+and adapt the map (Form menu, upload your own version) if it differs. Corrections and new venues are welcome as pull
+requests. The explanations are general reviewing guidance, not the venue's official instructions.
+
+### Conferences
+
+| Form | File | Accuracy | Source |
+|---|---|---|---|
+| AAAI 2026 - Review | `maps/aaai-2026.map` | from public guidelines | [aaai.org](https://aaai.org/conference/aaai/aaai-26/review-process/) |
+| AAMAS 2027 - Official Review | `maps/aamas-2027.map` | follows the published form | [warwick.ac.uk](https://warwick.ac.uk/fac/sci/dcs/aamas2027/guidelines-and-policies/reviewer-guidelines/) |
+| ACL Rolling Review (ACL / EMNLP / NAACL) - Review | `maps/acl-rolling-review.map` | from public guidelines | [aclrollingreview.org](https://aclrollingreview.org/reviewerguidelines) |
+| ACM CHI - Review (2024) | `maps/chi-2024.map` | from public guidelines | [chi2025.acm.org](https://chi2025.acm.org/guide-to-a-successful-submission/) |
+| CVPR / ICCV / ECCV - Review | `maps/cvf-conference.map` | from public guidelines | [cvpr.thecvf.com](https://cvpr.thecvf.com/Conferences/2025/ReviewerGuidelines) |
+| ICLR 2025 - Review | `maps/iclr-2025.map` | follows the published form | [www.iclr.cc](https://www.iclr.cc/Conferences/2025/ReviewerGuide) |
+| ICML 2025 - Review | `maps/icml-2025.map` | follows the published form | [icml.cc](https://icml.cc/Conferences/2025/ReviewerInstructions) |
+| ICRA / IROS (IEEE RAS) - Review | `maps/icra-iros.map` | from public guidelines | [ieee-ras.org](https://ieee-ras.org/conferences-workshops/fully-sponsored/icra/information-for-reviewers) |
+| IJCAI - Review (2022 form) | `maps/ijcai-2022.map` | from public guidelines | [www.ijcai-22.org](https://www.ijcai-22.org/wp-content/uploads/2022/01/Review-form-IJCAI-ECAI-2022-2.pdf) |
+| KDD 2025 - Research track review | `maps/kdd-2025.map` | from public guidelines | [kdd.org](https://kdd.org/) |
+| NeurIPS 2025 - Review | `maps/neurips-2025.map` | follows the published form | [neurips.cc](https://neurips.cc/Conferences/2025/ReviewerGuidelines) |
+
+### Journals
+
+| Form | File | Accuracy | Source |
+|---|---|---|---|
+| IEEE Transactions - Referee report | `maps/ieee-transactions.map` | from public guidelines | [ieeeaccess.ieee.org](https://ieeeaccess.ieee.org/reviewers/reviewer-guidelines/) |
+| JMLR - Referee report | `maps/jmlr.map` | from public guidelines | [www.jmlr.org](https://www.jmlr.org/reviewer-guide.html) |
+| Nature Portfolio - Referee report | `maps/nature-referee-report.map` | from public guidelines | [www.nature.com](https://www.nature.com/ncomms/for-reviewers/reviewer-faqs) |
+| PLOS ONE - Reviewer form | `maps/plos-one.map` | from public guidelines | [journals.plos.org](https://journals.plos.org/plosone/s/reviewer-guidelines) |
+| TMLR - Review (Transactions on Machine Learning Research) | `maps/tmlr.map` | follows the published form | [jmlr.org](https://jmlr.org/tmlr/reviewer-guide.html) |
+
+### General
+
+| Form | File | Accuracy | Source |
+|---|---|---|---|
+| Blank review (free text) | `maps/blank.map` | generic | - |
+| Generic conference paper review | `maps/generic-conference.map` | generic | - |
+| Generic journal referee report | `maps/generic-journal.map` | generic | - |
+| Map tutorial (every widget once) | `maps/map-tutorial.map` | generic | - |
+| Short review (workshop / extended abstract) | `maps/workshop-short.map` | generic | - |
+
+`map-tutorial.map` is the one to read when you want to write your own: it uses every widget once, with comments.
+To make a form for a new venue, copy the closest bundled map, change the `label`, `venue` and fields to match the
+venue's own form (field names and options exactly as the venue words them, so pasting is easy), and add `help` text
+where a newcomer would hesitate.
 
 ---
 
@@ -356,7 +415,7 @@ text where a newcomer would hesitate. Maps are welcome contributions.
 Everything is under one folder (`DATA_PATH` on the host, `/data` in the container):
 
     data/
-      default.map                  map used by new reviews
+      maps/                        your own map templates ("My maps")
       reviews/
         <id>/
           review.json              answers, annotations, PDF position
@@ -396,7 +455,7 @@ Everything is under one folder (`DATA_PATH` on the host, `/data` in the containe
 | `Could not upload the PDF: upload too large` | Raise `MAX_PDF_MB`. |
 | `Could not upload the PDF: not a PDF file` | The file does not start with `%PDF-`. |
 | `Map not replaced: map error: ...` | The uploaded map has a syntax error, usually reported with its line number. The review keeps its old map. |
-| A review says its map cannot be loaded | Press **Reset to the default map** on that page. |
+| A review says its map cannot be loaded | Press **Reset to its template** on that page. |
 | PDF text looks soft | Use your browser's default page zoom (`Ctrl/Cmd+0`) and a zoom of 100% or more in the PDF toolbar. |
 | Browser shows an old version after an update | Hard refresh (`Ctrl/Cmd+Shift+R`). |
 | Reviews written with an older single-file version | Start once with `LEGACY_REVIEWS_DIR=/path/to/old/reviews`; each one is copied into the new layout. A PDF that the old version kept in your browser is uploaded to the server the first time you open that review in the same browser and address. |
@@ -411,14 +470,13 @@ Everything is under one folder (`DATA_PATH` on the host, `/data` in the containe
     server.py        HTTP routing, configuration (stdlib http.server)
     store.py         on-disk storage: reviews, maps, PDFs, zip backup, migration (no HTTP)
     mapparser.py     the map language parser and validator
-    defaults/        the default map
-    examples/        example maps (parsed by the tests)
+    maps/            the bundled review forms (parsed and checked by the tests)
     static/          the single-page frontend (vanilla JS) and vendored PDF.js
     tests/           unit tests for the store, server, map parser and bundled maps
     .github/         workflow that tests, builds and publishes the image to ghcr.io
 
 The frontend has no build step. The HTTP API is implemented in `server.py`'s `_api` method: reviews are
-`/api/reviews[/<id>]`, with `/map`, `/map.map`, `/pdf` and `/backup.zip` underneath, plus `/api/info` and `/healthz`.
+`/api/reviews[/<id>]`, with `/map`, `/map.map`, `/pdf` and `/backup.zip` underneath, plus `/api/templates[/<id>]` for the form library and `/healthz`.
 
 ---
 

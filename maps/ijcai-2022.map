@@ -1,0 +1,137 @@
+# IJCAI review, modelled on the public IJCAI-ECAI 2022 review form. Newer years differ in wording and scales:
+# treat as an approximation and adapt it to the form you receive.
+
+Sitemap label="IJCAI - Review (2022 form)" venue="IJCAI" kind=conference year=2022 fidelity=guidelines source="https://www.ijcai-22.org/wp-content/uploads/2022/01/Review-form-IJCAI-ECAI-2022-2.pdf" description="Summary without evaluation, strengths, weaknesses, relevance to AI, reproducibility, confidential comments, recommendation. Modelled on the 2022 form." {
+  Frame label="Paper (private bookkeeping)" private {
+    Text id=paper_title label="Paper title" private
+    Text id=paper_id label="Submission number" private placeholder="e.g. 1234"
+  }
+  Info label="How to use this form" text="Fill this form field by field; click \"What does this mean?\" under any field for an explanation. Suggested order: read the paper once, take notes in the private workbench at the bottom, write the summary, then strengths and weaknesses, and pick the scores last so that they follow from your arguments. Never upload a submission to a third-party AI service, and check the venue's policy on LLM use in reviews."
+  Info label="About this map" text="Built from the venue's public reviewer guidelines (2022); the official review form could not be verified word for word, so field names and scales may differ from the form you receive. Treat this as a structured checklist and adapt it (Form menu, upload your own version) if your form differs. Modelled on the IJCAI-ECAI 2022 review form and the IJCAI reviewing guidance (summary without evaluation, strengths, relevance to AI, clarity, reproducibility, confidential comments, ethics flag)."
+  Frame label="Written review" {
+    Markdown id=summary label="Summary" required hint="Briefly summarise the main contributions in your own words, WITHOUT including your evaluation." help="""
+        WHAT IS ASKED
+        A neutral summary of the paper in your own words: the problem, the approach, the evidence and the headline result.
+
+        WHY IT MATTERS
+        It shows the authors and the chair that you understood the paper, and gives anyone who skips the rest the context for your scores. If your summary is wrong, the paper was unclear.
+
+        GOOD PRACTICE
+        - 5-10 lines. No judgement here: save it for strengths and weaknesses.
+        - Describe claims as "the authors claim / show / propose".
+        - Test: could the authors read it and say "yes, that is what we did"?
+
+        COMMON MISTAKES
+        - Copying the abstract: it shows nothing about your understanding.
+        - Describing only the problem, not the contribution.
+        - Slipping opinions in ("a nice but incremental idea").
+      """
+    Markdown id=strengths label="Strengths" required hint="The main strengths of the paper." help="""
+        WHAT IS ASKED
+        What the paper does well.
+
+        GOOD PRACTICE
+        - Be specific: point to a section, figure, table or theorem instead of "well written".
+        - Cover originality, technical quality, clarity and significance, in the terms the venue uses.
+        - Strengths are not filler: the chair uses them to see what you would defend in the discussion.
+      """
+    Markdown id=weaknesses label="Weaknesses" required hint="The main weaknesses of the paper." help="""
+        WHAT IS ASKED
+        The problems that stand between this paper and acceptance, and what it would take to fix them.
+
+        GOOD PRACTICE
+        - Order by importance. Separate MAJOR concerns (claims not supported, flawed evaluation, missing analysis) from MINOR ones (typos, wording).
+        - For each point: what the issue is, where it is, why it matters, what would resolve it.
+        - Criticise the work, never the authors. Separate facts ("Table 2 has no variance") from opinions ("I find the benchmark weak").
+        - Do not penalise a paper for something outside its stated scope, but do flag claims that go beyond the evidence.
+        - Do not ask for endless extra experiments: request those that test the central claim.
+      """
+    Markdown id=relevance label="Relevance to AI" required hint="Is the paper within the scope of IJCAI (artificial intelligence)?" help="""
+        WHAT IS ASKED
+        Whether the paper belongs at IJCAI, which welcomes work on any aspect of AI. Papers on a neighbouring field with only a token connection to AI are borderline. Do not downgrade just because the topic is not yours.
+
+      """
+    Markdown id=clarity label="Clarity of exposition" hint="Can an AI researcher outside the subfield follow the paper?"
+    Choice id=reproducibility_score label="Reproducibility" required hint="Are the results credible and can they be reproduced?" help="""
+        WHAT IS ASKED
+        Whether another group could reproduce the results from the paper and its supplementary material.
+
+        WHAT TO CHECK
+        - Code and data available or promised? Hyperparameters, seeds, compute, preprocessing described?
+        - Are random seeds and variance reported, or is a single run presented as a result?
+        - Are datasets and software licensed and cited correctly?
+
+        IJCAI treats reproducibility as an important criterion; justify a low answer in the review.
+      """ {
+      Option value=3 label="Convincing - the results are credible and can be reproduced"
+      Option value=2 label="Partly - some results could be reproduced, important details are missing"
+      Option value=1 label="Not convincing - the results cannot be reproduced from the paper and material"
+    }
+    Markdown id=questions label="Questions for the authors" help="""
+        WHAT IS ASKED
+        Questions whose answers could change your assessment.
+
+        GOOD PRACTICE
+        - Number them so the authors can answer one by one in the rebuttal.
+        - Ask for clarification of what is unclear, or evidence for a specific claim. Avoid requests that need weeks of new work.
+        - If nothing could change your mind, say so and explain why in the review instead.
+      """
+    Markdown id=confidential label="Confidential comments" hint="Visible to the chairs, not to the authors. Concerns about integrity, overlap with other work, or the limits of your expertise."
+    Markdown id=ethics label="Ethical concerns" hint="Flag any serious ethical concern, or write that you have none." help="""
+        WHAT IS ASKED
+        Flag serious ethical concerns so that the right people can look at them.
+
+        WHEN TO FLAG
+        Human-subject data without consent or approval, privacy violations, harmful applications, discriminatory data or methods, license violations, research-integrity problems. Describe the concern briefly and factually. If you have none, say so explicitly.
+      """
+  }
+  Frame label="Recommendation" {
+    Choice id=overall label="Overall recommendation" required hint="Your overall recommendation." help="""
+        WHAT IS ASKED
+        Whether the paper should be accepted. The IJCAI-ECAI 2022 form used named levels such as Strong accept and Borderline reject; the exact set differs by year, so adapt this one to the form you receive.
+
+        CALIBRATION
+        Scores are relative to the whole pool of submissions to this venue. Most papers sit in the middle of the scale; the extremes carry heavy weight in the discussion, so make sure your text defends them. Be consistent: a review that lists mostly weaknesses should not carry a high score, and the reverse.
+      """ {
+      Option value=6 label="6: Strong accept"
+      Option value=5 label="5: Accept"
+      Option value=4 label="4: Weak accept"
+      Option value=3 label="3: Borderline reject"
+      Option value=2 label="2: Reject"
+      Option value=1 label="1: Strong reject"
+    }
+    Choice id=confidence label="Confidence" required hint="How confident are you in this review?" help="""
+        WHAT IS ASKED
+        How much the chair should trust YOUR review. It is a statement about you, not about the paper.
+
+        WHY IT MATTERS
+        Chairs weight reviews by confidence. Overstating it lets a mistaken review count too much; understating it wastes a good one. Honesty here is a sign of a good reviewer, and being new to an area is a legitimate reason for a lower number.
+
+        HOW TO CHOOSE
+        Ask yourself:
+        - Do I know this subarea and its main prior work well enough to judge novelty?
+        - Did I read the whole paper, including the appendix, and check the technical parts?
+        - Did I understand the central contribution?
+        If you could not verify proofs or are unsure about prior work, choose 3 or lower and say precisely what you did not check in the review.
+      """ {
+      Option value=5 label="5: The reviewer is absolutely certain that the evaluation is correct and very familiar with the relevant literature"
+      Option value=4 label="4: The reviewer is confident but not absolutely certain that the evaluation is correct"
+      Option value=3 label="3: The reviewer is fairly confident that the evaluation is correct"
+      Option value=2 label="2: The reviewer is willing to defend the evaluation, but it is quite likely that the reviewer did not understand central parts of the paper"
+      Option value=1 label="1: The reviewer's evaluation is an educated guess"
+    }
+  }
+  Frame label="Reviewer workbench (private - never exported)" private {
+    Info label="About this section" text="Your own notes and checklist. They are saved with the review but excluded from the exported text."
+    Checkbox id=chk_read label="First quick read done (abstract, introduction, figures, conclusions)" private
+    Checkbox id=chk_claims label="Listed the paper's claims and checked that each one is supported" private
+    Checkbox id=chk_method label="Checked the method / assumptions / key proof steps" private
+    Checkbox id=chk_exp label="Checked the evaluation: baselines, data, metrics, variance, ablations" private
+    Checkbox id=chk_related label="Checked related work and the novelty claims" private
+    Checkbox id=chk_repro label="Checked reproducibility (code, data, hyperparameters, appendix)" private
+    Checkbox id=chk_ethics label="Checked ethics, conflicts of interest and dual submission" private
+    Checkbox id=chk_consistent label="My scores are consistent with the text of my review" private
+    Textarea id=notes_questions label="Questions to ask the authors" private
+    Textarea id=notes_reading label="Notes while reading (page, issue)" private rows=10
+  }
+}

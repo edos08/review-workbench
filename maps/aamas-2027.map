@@ -3,7 +3,9 @@
 # `help` = long beginner-oriented explanation shown in the app (not part of the submission).
 # `private` fields are your own workbench: saved with the review, never exported.
 
-Sitemap label="AAMAS 2027 - Official Review" venue="AAMAS 2027" {
+Sitemap label="AAMAS 2027 - Official Review" venue="AAMAS 2027" kind=conference year=2027 fidelity=form
+  source="https://warwick.ac.uk/fac/sci/dcs/aamas2027/guidelines-and-policies/reviewer-guidelines/"
+  description="Official Review form: summary, technical quality, significance, presentation, review, proceedings and findings ratings (1-10), confidence, best paper." {
 
   Frame label="Paper (private bookkeeping)" private {
     Text id=paper_title label="Paper title" private

@@ -1,9 +1,10 @@
 # The smallest useful map, using every widget type once. Copy it and edit.
 # Lines starting with '#' are comments. Layout is free-form: only the braces matter.
 #
-# Usage: open a review -> "Map" menu -> "Upload a map..." and pick this file.
+# Usage: open a review -> "Form" menu -> "Upload a map file..." and pick this file, or use "Add my own map..." on the home page.
 
-Sitemap label="Minimal example" venue="Any venue" {
+Sitemap label="Map tutorial (every widget once)" venue="Tutorial" kind=general fidelity=generic
+  description="Not a real form: a commented map that shows every widget type. Start here to write your own map." {
 
   Info label="Read me" text="Info boxes show static text. Use them for instructions to yourself."
 

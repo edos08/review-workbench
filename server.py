@@ -111,17 +111,23 @@ class Handler(BaseHTTPRequestHandler):
     # ---------- API ----------
     def _api(self, method, p):
         s = self.store
-        if p == ["info"] and method == "GET":
-            try:
-                label = mapparser.parse(s.default_map_text())["attrs"].get("label", "Default map")
-            except mapparser.MapError:
-                label = "Default map"
-            return self._send(200, {"defaultMapLabel": label})
+        if p == ["templates"] and method == "GET":
+            return self._send(200, s.templates())
+        if len(p) == 2 and p[0] == "templates":
+            if method == "PUT":
+                s.set_custom_template(p[1], self._raw(s.MAX_MAP).decode("utf-8", "replace"))
+                return self._send(200, {"ok": True})
+            if method == "DELETE":
+                s.delete_custom_template(p[1])
+                return self._send(200, {"ok": True})
         if p == ["reviews"] and method == "GET":
             return self._send(200, s.list())
         if p == ["reviews"] and method == "POST":
             body = self._json_body()
-            return self._send(201, s.create(body.get("title", "") if isinstance(body, dict) else ""))
+            if not isinstance(body, dict):
+                raise ValueError("expected a JSON object")
+            title = body.get("title", "")
+            return self._send(201, s.create(title if isinstance(title, str) else "", body.get("template") or None))
         if p == ["reviews", "import"] and method == "POST":
             if (self.headers.get("Content-Type") or "").split(";")[0].strip() == "application/zip":
                 r = s.import_zip(self._raw(s.MAX_PDF + s.MAX_JSON + s.MAX_MAP))
@@ -151,6 +157,13 @@ class Handler(BaseHTTPRequestHandler):
                 if method == "DELETE":
                     s.reset_map(rid)
                     return self._send(200, {"ok": True})
+            elif rest == ["template"] and method == "POST":
+                body = self._json_body()
+                tid = body.get("template") if isinstance(body, dict) else None
+                if not tid:
+                    raise ValueError("missing 'template'")
+                s.set_template(rid, tid)
+                return self._send(200, {"ok": True})
             elif rest == ["map.map"] and method == "GET":
                 return self._send(200, s.map_text(rid).encode(), "text/plain; charset=utf-8",
                                   {"Content-Disposition": 'attachment; filename="review.map"'})
@@ -191,7 +204,7 @@ def main():
         Store.MAX_PDF = pdf_limit_from_env(os.environ)
     except ValueError as e:
         sys.exit(f"Configuration error: {e}")
-    store = Store(data_dir, ROOT / "defaults" / "default.map")
+    store = Store(data_dir, ROOT / "maps")
     legacy = os.environ.get("LEGACY_REVIEWS_DIR")
     if legacy:
         moved = store.migrate_legacy(legacy)

@@ -1,0 +1,112 @@
+# IEEE RAS robotics conference review (ICRA, IROS), built from the public reviewer information: originality of concepts, relevance of
+# applications, technical soundness, thoroughness of results, clarity of presentation, letter-grade recommendation.
+# The official form and the middle grades could not be verified: this is an approximation.
+
+Sitemap label="ICRA / IROS (IEEE RAS) - Review" venue="ICRA / IROS" kind=conference year=2025 fidelity=guidelines source="https://ieee-ras.org/conferences-workshops/fully-sponsored/icra/information-for-reviewers" description="Originality, relevance, technical soundness, thoroughness of results, presentation, comments to authors, letter-grade recommendation." {
+  Frame label="Paper (private bookkeeping)" private {
+    Text id=paper_title label="Paper title" private
+    Text id=paper_id label="Submission number" private placeholder="e.g. 1234"
+  }
+  Info label="How to use this form" text="Fill this form field by field; click \"What does this mean?\" under any field for an explanation. Suggested order: read the paper once, take notes in the private workbench at the bottom, write the summary, then strengths and weaknesses, and pick the scores last so that they follow from your arguments. Never upload a submission to a third-party AI service, and check the venue's policy on LLM use in reviews."
+  Info label="About this map" text="Built from the venue's public reviewer guidelines (2025); the official review form could not be verified word for word, so field names and scales may differ from the form you receive. Treat this as a structured checklist and adapt it (Form menu, upload your own version) if your form differs. The IEEE RAS guidance asks for a detailed review that describes the contribution and justifies the overall assessment (a minimum length applies), and uses letter grades. The two end grades are as published; the middle grades are an approximation."
+  Frame label="Written review" {
+    Markdown id=summary label="Summary of the contribution" required hint="Describe the contribution of the paper." help="""
+        WHAT IS ASKED
+        A neutral summary of the paper in your own words: the problem, the approach, the evidence and the headline result.
+
+        WHY IT MATTERS
+        It shows the authors and the chair that you understood the paper, and gives anyone who skips the rest the context for your scores. If your summary is wrong, the paper was unclear.
+
+        GOOD PRACTICE
+        - 5-10 lines. No judgement here: save it for strengths and weaknesses.
+        - Describe claims as "the authors claim / show / propose".
+        - Test: could the authors read it and say "yes, that is what we did"?
+
+        COMMON MISTAKES
+        - Copying the abstract: it shows nothing about your understanding.
+        - Describing only the problem, not the contribution.
+        - Slipping opinions in ("a nice but incremental idea").
+      """
+    Markdown id=originality label="Originality of concepts" required hint="Are the concepts new, or a known idea applied to a new setting?"
+    Markdown id=relevance label="Relevance of applications" required hint="Is the work relevant to robotics and automation, and to real use?"
+    Markdown id=technical label="Technical soundness" required hint="Is the approach correct and well founded?" help="""
+        WHAT IS ASKED
+        Whether the method is correct: modelling assumptions, control/planning/learning formulation, proofs.
+
+        WHAT TO CHECK
+        - Are assumptions realistic (sensing, actuation, noise, latency)? Is stability or safety argued where claimed?
+        - Is the comparison to prior methods fair and the method implemented on enough scenarios?
+
+      """
+    Markdown id=results label="Thoroughness of results" required hint="Simulation and real-robot evidence." help="""
+        WHAT IS ASKED
+        Whether the experiments support the claims.
+
+        WHAT TO CHECK
+        - Real-robot experiments where claimed? Number of trials, environments and platforms, failure cases reported?
+        - Simulation-only results used for claims about physical performance?
+        - Statistics and baselines.
+
+      """
+    Markdown id=presentation label="Clarity of presentation" hint="Writing, figures, video and supplementary material."
+    Markdown id=comments_authors label="Detailed comments to the authors" required hint="Justify your overall assessment. Specific, constructive, ordered by importance." help="""
+        WHAT IS ASKED
+        The problems that stand between this paper and acceptance, and what it would take to fix them.
+
+        GOOD PRACTICE
+        - Order by importance. Separate MAJOR concerns (claims not supported, flawed evaluation, missing analysis) from MINOR ones (typos, wording).
+        - For each point: what the issue is, where it is, why it matters, what would resolve it.
+        - Criticise the work, never the authors. Separate facts ("Table 2 has no variance") from opinions ("I find the benchmark weak").
+        - Do not penalise a paper for something outside its stated scope, but do flag claims that go beyond the evidence.
+        - Do not ask for endless extra experiments: request those that test the central claim.
+      """
+    Markdown id=confidential label="Confidential comments to the editor" hint="Not shown to the authors."
+  }
+  Frame label="Recommendation" {
+    Choice id=overall label="Overall recommendation" required hint="Letter grade for the paper." help="""
+        WHAT IS ASKED
+        Your recommendation as a letter grade. A is Definitely accept; D means trivial, wrong or already known work; U is for papers that do not belong at the conference.
+        Check the labels of the grades between A and D against the form you receive.
+
+        CALIBRATION
+        Scores are relative to the whole pool of submissions to this venue. Most papers sit in the middle of the scale; the extremes carry heavy weight in the discussion, so make sure your text defends them. Be consistent: a review that lists mostly weaknesses should not carry a high score, and the reverse.
+      """ {
+      Option value=5 label="A / 5.0 - Definitely accept"
+      Option value=4 label="B / 4.0 - Probably accept"
+      Option value=3 label="C / 3.0 - Probably reject"
+      Option value=2 label="D / 2.0 - Definitely reject (trivial, wrong or known work)"
+      Option value=1 label="U / 1.0 - Inappropriate for the conference"
+    }
+    Choice id=confidence label="Confidence" required help="""
+        WHAT IS ASKED
+        How much the chair should trust YOUR review. It is a statement about you, not about the paper.
+
+        WHY IT MATTERS
+        Chairs weight reviews by confidence. Overstating it lets a mistaken review count too much; understating it wastes a good one. Honesty here is a sign of a good reviewer, and being new to an area is a legitimate reason for a lower number.
+
+        HOW TO CHOOSE
+        Ask yourself:
+        - Do I know this subarea and its main prior work well enough to judge novelty?
+        - Did I read the whole paper, including the appendix, and check the technical parts?
+        - Did I understand the central contribution?
+        If you could not verify proofs or are unsure about prior work, choose 3 or lower and say precisely what you did not check in the review.
+      """ {
+      Option value=3 label="3 - High: I know this area well"
+      Option value=2 label="2 - Medium: I know the area but not this exact topic"
+      Option value=1 label="1 - Low: outside my area"
+    }
+  }
+  Frame label="Reviewer workbench (private - never exported)" private {
+    Info label="About this section" text="Your own notes and checklist. They are saved with the review but excluded from the exported text."
+    Checkbox id=chk_read label="First quick read done (abstract, introduction, figures, conclusions)" private
+    Checkbox id=chk_claims label="Listed the paper's claims and checked that each one is supported" private
+    Checkbox id=chk_method label="Checked the method / assumptions / key proof steps" private
+    Checkbox id=chk_exp label="Checked the evaluation: baselines, data, metrics, variance, ablations" private
+    Checkbox id=chk_related label="Checked related work and the novelty claims" private
+    Checkbox id=chk_repro label="Checked reproducibility (code, data, hyperparameters, appendix)" private
+    Checkbox id=chk_ethics label="Checked ethics, conflicts of interest and dual submission" private
+    Checkbox id=chk_consistent label="My scores are consistent with the text of my review" private
+    Textarea id=notes_questions label="Questions to ask the authors" private
+    Textarea id=notes_reading label="Notes while reading (page, issue)" private rows=10
+  }
+}

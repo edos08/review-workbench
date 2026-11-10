@@ -2,7 +2,8 @@
 # comments to the authors, confidential comments to the editor, four quality ratings,
 # and a recommendation. Adapt the wording to the journal's own form.
 
-Sitemap label="Journal article - referee report" venue="Journal" {
+Sitemap label="Generic journal referee report" venue="Any journal" kind=general fidelity=generic
+  description="Referee report for any journal: comments to authors, confidential note to the editor, four 1-4 ratings, accept / minor / major / reject." {
 
   Frame label="Manuscript (private bookkeeping)" private {
     Text id=ms_title label="Manuscript title" private

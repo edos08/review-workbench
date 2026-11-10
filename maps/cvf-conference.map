@@ -1,0 +1,126 @@
+# Review for the Computer Vision Foundation conferences (CVPR, ICCV, ECCV), built from the public reviewer guidance:
+# summary, strengths, weaknesses, recommendation, justification, confidence. The official form and scale could not be
+# verified; this is a structured approximation.
+
+Sitemap label="CVPR / ICCV / ECCV - Review" venue="CVF conferences" kind=conference year=2025 fidelity=guidelines source="https://cvpr.thecvf.com/Conferences/2025/ReviewerGuidelines" description="Paper summary, strengths, weaknesses, recommendation with a justification that weighs them, confidence. Built from the CVF reviewer guidance." {
+  Frame label="Paper (private bookkeeping)" private {
+    Text id=paper_title label="Paper title" private
+    Text id=paper_id label="Submission number" private placeholder="e.g. 1234"
+  }
+  Info label="How to use this form" text="Fill this form field by field; click \"What does this mean?\" under any field for an explanation. Suggested order: read the paper once, take notes in the private workbench at the bottom, write the summary, then strengths and weaknesses, and pick the scores last so that they follow from your arguments. Never upload a submission to a third-party AI service, and check the venue's policy on LLM use in reviews."
+  Info label="About this map" text="Built from the venue's public reviewer guidelines (2025); the official review form could not be verified word for word, so field names and scales may differ from the form you receive. Treat this as a structured checklist and adapt it (Form menu, upload your own version) if your form differs. CVPR, ICCV and ECCV guidance asks for a thoughtful, detailed review (a list of very short bullets does not meet the bar) and a justified recommendation that weighs strengths against weaknesses."
+  Frame label="Written review" {
+    Markdown id=summary label="Paper summary" required hint="What the paper does, neutrally." help="""
+        WHAT IS ASKED
+        A neutral summary of the paper in your own words: the problem, the approach, the evidence and the headline result.
+
+        WHY IT MATTERS
+        It shows the authors and the chair that you understood the paper, and gives anyone who skips the rest the context for your scores. If your summary is wrong, the paper was unclear.
+
+        GOOD PRACTICE
+        - 5-10 lines. No judgement here: save it for strengths and weaknesses.
+        - Describe claims as "the authors claim / show / propose".
+        - Test: could the authors read it and say "yes, that is what we did"?
+
+        COMMON MISTAKES
+        - Copying the abstract: it shows nothing about your understanding.
+        - Describing only the problem, not the contribution.
+        - Slipping opinions in ("a nice but incremental idea").
+      """
+    Markdown id=strengths label="Strengths" required hint="What the paper does well." help="""
+        WHAT IS ASKED
+        What the paper does well.
+
+        GOOD PRACTICE
+        - Be specific: point to a section, figure, table or theorem instead of "well written".
+        - Cover originality, technical quality, clarity and significance, in the terms the venue uses.
+        - Strengths are not filler: the chair uses them to see what you would defend in the discussion.
+      """
+    Markdown id=weaknesses label="Weaknesses" required hint="What needs to improve." help="""
+        WHAT IS ASKED
+        The problems that stand between this paper and acceptance, and what it would take to fix them.
+
+        GOOD PRACTICE
+        - Order by importance. Separate MAJOR concerns (claims not supported, flawed evaluation, missing analysis) from MINOR ones (typos, wording).
+        - For each point: what the issue is, where it is, why it matters, what would resolve it.
+        - Criticise the work, never the authors. Separate facts ("Table 2 has no variance") from opinions ("I find the benchmark weak").
+        - Do not penalise a paper for something outside its stated scope, but do flag claims that go beyond the evidence.
+        - Do not ask for endless extra experiments: request those that test the central claim.
+
+        VISION-SPECIFIC POINTS
+        - Are results on standard benchmarks and compared with the strongest recent methods, with the same training data and backbone?
+        - Is the claimed gain larger than the run-to-run variance? Is the method tested beyond one dataset?
+        - If a claim is "this has not been done before", can you check it? Back it up with references: unsupported "done before" criticism is a known failure of reviews.
+
+      """
+    Markdown id=detailed_comments label="Detailed comments and suggestions" hint="Anything else useful to the authors: missing experiments, writing, figures."
+  }
+  Frame label="Recommendation" {
+    Choice id=rating label="Recommendation" required hint="Your preliminary recommendation." help="""
+        WHAT IS ASKED
+        Your recommendation for the paper. After the rebuttal you will be asked to update it and justify any change.
+
+        HOW TO CHOOSE
+        - Borderline is a real choice: use it when the pros and cons balance, and say what would tip you.
+        - The ECCV/ICCV reviewer tutorials suggest asking: would I be unhappy if this paper were accepted? Would I be unhappy if it were rejected?
+        Adapt the labels to the form you receive: this scale is an approximation.
+
+        CALIBRATION
+        Scores are relative to the whole pool of submissions to this venue. Most papers sit in the middle of the scale; the extremes carry heavy weight in the discussion, so make sure your text defends them. Be consistent: a review that lists mostly weaknesses should not carry a high score, and the reverse.
+      """ {
+      Option value=5 label="Strong accept"
+      Option value=4 label="Weak accept"
+      Option value=3 label="Borderline"
+      Option value=2 label="Weak reject"
+      Option value=1 label="Strong reject"
+    }
+    Markdown id=justification label="Justification of recommendation" required hint="Explain how you weighed the strengths and weaknesses. Be specific and tie it to your rating." help="""
+        WHAT IS ASKED
+        Why you chose this rating: which strengths and weaknesses decided it and how you weighed them.
+
+        GOOD PRACTICE
+        - Specific, evidence-based, tied to the rating. "The paper is good overall" is not a justification.
+        - After the rebuttal: name which concerns were resolved and how, and which remain.
+
+      """
+    Choice id=confidence label="Confidence" required help="""
+        WHAT IS ASKED
+        How much the chair should trust YOUR review. It is a statement about you, not about the paper.
+
+        WHY IT MATTERS
+        Chairs weight reviews by confidence. Overstating it lets a mistaken review count too much; understating it wastes a good one. Honesty here is a sign of a good reviewer, and being new to an area is a legitimate reason for a lower number.
+
+        HOW TO CHOOSE
+        Ask yourself:
+        - Do I know this subarea and its main prior work well enough to judge novelty?
+        - Did I read the whole paper, including the appendix, and check the technical parts?
+        - Did I understand the central contribution?
+        If you could not verify proofs or are unsure about prior work, choose 3 or lower and say precisely what you did not check in the review.
+      """ {
+      Option value=4 label="Very confident"
+      Option value=3 label="Confident"
+      Option value=2 label="Somewhat confident"
+      Option value=1 label="Not confident"
+    }
+    Markdown id=ethics label="Ethical concerns" hint="Flag serious concerns or write that you have none." help="""
+        WHAT IS ASKED
+        Flag serious ethical concerns so that the right people can look at them.
+
+        WHEN TO FLAG
+        Human-subject data without consent or approval, privacy violations, harmful applications, discriminatory data or methods, license violations, research-integrity problems. Describe the concern briefly and factually. If you have none, say so explicitly.
+      """
+  }
+  Frame label="Reviewer workbench (private - never exported)" private {
+    Info label="About this section" text="Your own notes and checklist. They are saved with the review but excluded from the exported text."
+    Checkbox id=chk_read label="First quick read done (abstract, introduction, figures, conclusions)" private
+    Checkbox id=chk_claims label="Listed the paper's claims and checked that each one is supported" private
+    Checkbox id=chk_method label="Checked the method / assumptions / key proof steps" private
+    Checkbox id=chk_exp label="Checked the evaluation: baselines, data, metrics, variance, ablations" private
+    Checkbox id=chk_related label="Checked related work and the novelty claims" private
+    Checkbox id=chk_repro label="Checked reproducibility (code, data, hyperparameters, appendix)" private
+    Checkbox id=chk_ethics label="Checked ethics, conflicts of interest and dual submission" private
+    Checkbox id=chk_consistent label="My scores are consistent with the text of my review" private
+    Textarea id=notes_questions label="Questions to ask the authors" private
+    Textarea id=notes_reading label="Notes while reading (page, issue)" private rows=10
+  }
+}

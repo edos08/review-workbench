@@ -1,7 +1,8 @@
 # A compact, generic conference-paper review (NOT an official form of any conference):
 # summary, pros and cons, questions, one overall score, confidence.
 
-Sitemap label="Conference paper - simple review" venue="Conference" {
+Sitemap label="Generic conference paper review" venue="Any conference" kind=general fidelity=generic
+  description="Compact review for any conference: summary, strengths, weaknesses, questions, a 1-6 score, confidence, award flag." {
 
   Frame label="Paper (private bookkeeping)" private {
     Text id=paper_title label="Paper title" private

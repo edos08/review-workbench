@@ -1,0 +1,202 @@
+# NeurIPS 2025 main-track review, modelled on the published form (summary; strengths and weaknesses; quality, clarity,
+# significance, originality on 1-4; questions; limitations; overall 1-6; confidence 1-5; ethics flag).
+# Not an official form: wording and scales change every year, check the one you receive.
+
+Sitemap label="NeurIPS 2025 - Review" venue="NeurIPS" kind=conference year=2025 fidelity=form source="https://neurips.cc/Conferences/2025/ReviewerGuidelines" description="Main-track review: summary, strengths and weaknesses, four 1-4 scores (quality, clarity, significance, originality), 1-6 overall rating, confidence." {
+  Frame label="Paper (private bookkeeping)" private {
+    Text id=paper_title label="Paper title" private
+    Text id=paper_id label="Submission number" private placeholder="e.g. 1234"
+  }
+  Info label="How to use this form" text="Fill this form field by field; click \"What does this mean?\" under any field for an explanation. Suggested order: read the paper once, take notes in the private workbench at the bottom, write the summary, then strengths and weaknesses, and pick the scores last so that they follow from your arguments. Never upload a submission to a third-party AI service, and check the venue's policy on LLM use in reviews."
+  Info label="About this map" text="Modelled on the review form published by the venue for 2025. Venues change wording and scales between years and tracks: when you copy your answers into the real system, follow the form you were given."
+  Frame label="Written review" {
+    Markdown id=summary label="Summary" required hint="Briefly summarise the paper and its contributions, without critique." help="""
+        WHAT IS ASKED
+        A neutral summary of the paper in your own words: the problem, the approach, the evidence and the headline result.
+
+        WHY IT MATTERS
+        It shows the authors and the chair that you understood the paper, and gives anyone who skips the rest the context for your scores. If your summary is wrong, the paper was unclear.
+
+        GOOD PRACTICE
+        - 5-10 lines. No judgement here: save it for strengths and weaknesses.
+        - Describe claims as "the authors claim / show / propose".
+        - Test: could the authors read it and say "yes, that is what we did"?
+
+        COMMON MISTAKES
+        - Copying the abstract: it shows nothing about your understanding.
+        - Describing only the problem, not the contribution.
+        - Slipping opinions in ("a nice but incremental idea").
+      """
+    Markdown id=strengths_weaknesses label="Strengths and Weaknesses" required hint="Assess originality, quality, clarity and significance. Be specific and constructive." help="""
+        WHAT IS ASKED
+        The core of your review. The four scores below should follow from what you write here, so discuss all four dimensions:
+        - QUALITY: is the submission technically sound? Are claims well supported by theory or experiments? Are the methods appropriate? Are the authors honest about the strengths and weaknesses of their work?
+        - CLARITY: is it clearly written and well organised? Does it give enough information for an expert reader to reproduce the results?
+        - SIGNIFICANCE: are the results important? Are others likely to use or build on them? Does it address a difficult task better than before, or advance understanding in a demonstrable way?
+        - ORIGINALITY: does it provide new insight, a new task or method, or a novel combination? Is it clear how it differs from prior work, with adequate citations?
+
+        GOOD PRACTICE
+        - Use a short list of strengths followed by a list of weaknesses, most important first.
+        - Link every criticism to a place in the paper and to what would fix it.
+        - Novelty does not require a complicated method: a simple method that works better, or a careful study, can be original.
+
+      """
+  }
+  Frame label="Scores" {
+    Choice id=quality label="Quality" required hint="Is the submission technically sound?" help="""
+        WHAT IS ASKED
+        Is the work correct and well supported?
+
+        WHAT TO CHECK
+        - Claims backed by theory or experiments? Assumptions stated and reasonable? Proof steps correct?
+        - Baselines strong and fairly tuned? Variance reported? Ablations?
+
+        HOW TO CHOOSE
+        Anchor on the weakest important link: a beautiful idea with a flawed evaluation is not Excellent.
+        Score each dimension on its own: a paper can be sound but dull, or exciting but badly written.
+
+      """ {
+      Option value=4 label="4 - Excellent"
+      Option value=3 label="3 - Good"
+      Option value=2 label="2 - Fair"
+      Option value=1 label="1 - Poor"
+    }
+    Choice id=clarity label="Clarity" required hint="Is the submission clearly written and well organised?" help="""
+        WHAT IS ASKED
+        How well the paper communicates.
+
+        WHAT TO CHECK
+        - Could an expert reproduce the work from the text? Notation defined, figures readable, structure logical?
+
+        HOW TO CHOOSE
+        Minor typos hardly matter; undefined terms, confusing notation or unreadable plots do.
+        Score each dimension on its own: a paper can be sound but dull, or exciting but badly written.
+
+      """ {
+      Option value=4 label="4 - Excellent"
+      Option value=3 label="3 - Good"
+      Option value=2 label="2 - Fair"
+      Option value=1 label="1 - Poor"
+    }
+    Choice id=significance label="Significance" required hint="Are the results important for the community?" help="""
+        WHAT IS ASKED
+        How much the work matters.
+
+        WHAT TO CHECK
+        - Will others use or build on it? Does it advance understanding or the state of the art in a demonstrable way?
+
+        HOW TO CHOOSE
+        Do not downgrade because it is not your topic, or upgrade because it is fashionable.
+        Score each dimension on its own: a paper can be sound but dull, or exciting but badly written.
+
+      """ {
+      Option value=4 label="4 - Excellent"
+      Option value=3 label="3 - Good"
+      Option value=2 label="2 - Fair"
+      Option value=1 label="1 - Poor"
+    }
+    Choice id=originality label="Originality" required hint="Does the work provide new insights?" help="""
+        WHAT IS ASKED
+        How new the contribution is.
+
+        WHAT TO CHECK
+        - Is the difference from prior work explicit? Are related works cited adequately?
+
+        HOW TO CHOOSE
+        Combining known pieces in a new, useful way can be original. Name the closest papers if you doubt novelty.
+        Score each dimension on its own: a paper can be sound but dull, or exciting but badly written.
+
+      """ {
+      Option value=4 label="4 - Excellent"
+      Option value=3 label="3 - Good"
+      Option value=2 label="2 - Fair"
+      Option value=1 label="1 - Poor"
+    }
+  }
+  Frame label="Questions and limitations" {
+    Markdown id=questions label="Questions" required hint="Questions for the authors that could change your assessment." help="""
+        WHAT IS ASKED
+        Questions whose answers could change your assessment.
+
+        GOOD PRACTICE
+        - Number them so the authors can answer one by one in the rebuttal.
+        - Ask for clarification of what is unclear, or evidence for a specific claim. Avoid requests that need weeks of new work.
+        - If nothing could change your mind, say so and explain why in the review instead.
+      """
+    Markdown id=limitations label="Limitations" required hint="Have the authors adequately addressed the limitations and potential negative societal impact?" help="""
+        WHAT IS ASKED
+        Whether the authors are honest about the limits of their work and its potential negative impact.
+
+        WHAT TO CHECK
+        - Is there a limitations discussion, and is it specific (assumptions, failure cases, scope) rather than a formality?
+        - Do the claims in the abstract and introduction stay within what the experiments or proofs show?
+        - Is there a plausible risk (misuse, bias, privacy, safety) that the paper ignores?
+        Do not punish authors for being open about limitations: it is a good sign.
+      """
+    Choice id=ethics_flag label="Ethical concerns" required help="""
+        WHAT IS ASKED
+        Flag serious ethical concerns so that the right people can look at them.
+
+        WHEN TO FLAG
+        Human-subject data without consent or approval, privacy violations, harmful applications, discriminatory data or methods, license violations, research-integrity problems. Describe the concern briefly and factually. If you have none, say so explicitly.
+      """ {
+      Option value=no label="No ethics review needed"
+      Option value=yes label="Ethics review needed (describe in the field below)"
+    }
+    Markdown id=ethics_details label="Ethics concerns (details)" hint="Only if you flagged a concern."
+  }
+  Frame label="Recommendation" {
+    Choice id=overall label="Overall rating" required hint="Overall recommendation for the paper." help="""
+        WHAT IS ASKED
+        Your overall verdict, which summarises all four dimensions above. It is the number the area chair looks at first.
+
+        HOW TO CHOOSE
+        Ask: would I be comfortable seeing this paper at the conference as it is? Weigh severity, not the number of problems: soundness and impact usually outweigh presentation, which can be fixed.
+        The two borderline levels exist for genuinely close calls: write in your review what single change would flip your decision.
+
+        CALIBRATION
+        Scores are relative to the whole pool of submissions to this venue. Most papers sit in the middle of the scale; the extremes carry heavy weight in the discussion, so make sure your text defends them. Be consistent: a review that lists mostly weaknesses should not carry a high score, and the reverse.
+      """ {
+      Option value=6 label="6: Strong Accept" help="Technically flawless paper with groundbreaking impact, exceptionally strong evaluation, reproducibility and resources, and no unaddressed ethical considerations."
+      Option value=5 label="5: Accept" help="Technically solid paper with high impact on at least one sub-area, or moderate-to-high impact on more than one area, good-to-excellent evaluation, resources and reproducibility, and no unaddressed ethical considerations."
+      Option value=4 label="4: Borderline accept" help="Technically solid paper where reasons to accept outweigh reasons to reject (for example limited evaluation). Use sparingly."
+      Option value=3 label="3: Borderline reject" help="Technically solid paper where reasons to reject (for example limited evaluation) outweigh reasons to accept (for example good evaluation). Use sparingly."
+      Option value=2 label="2: Reject" help="For instance a paper with technical flaws, weak evaluation, inadequate reproducibility or incompletely addressed ethical considerations."
+      Option value=1 label="1: Strong Reject" help="For instance a paper with well-known results or unaddressed ethical considerations."
+    }
+    Choice id=confidence label="Confidence" required hint="How confident are you in this review?" help="""
+        WHAT IS ASKED
+        How much the chair should trust YOUR review. It is a statement about you, not about the paper.
+
+        WHY IT MATTERS
+        Chairs weight reviews by confidence. Overstating it lets a mistaken review count too much; understating it wastes a good one. Honesty here is a sign of a good reviewer, and being new to an area is a legitimate reason for a lower number.
+
+        HOW TO CHOOSE
+        Ask yourself:
+        - Do I know this subarea and its main prior work well enough to judge novelty?
+        - Did I read the whole paper, including the appendix, and check the technical parts?
+        - Did I understand the central contribution?
+        If you could not verify proofs or are unsure about prior work, choose 3 or lower and say precisely what you did not check in the review.
+      """ {
+      Option value=5 label="5: The reviewer is absolutely certain that the evaluation is correct and very familiar with the relevant literature"
+      Option value=4 label="4: The reviewer is confident but not absolutely certain that the evaluation is correct"
+      Option value=3 label="3: The reviewer is fairly confident that the evaluation is correct"
+      Option value=2 label="2: The reviewer is willing to defend the evaluation, but it is quite likely that the reviewer did not understand central parts of the paper"
+      Option value=1 label="1: The reviewer's evaluation is an educated guess"
+    }
+    Checkbox id=code_of_conduct label="I acknowledge that I have read the NeurIPS code of conduct for reviewers and that my review follows it" required help="Reviews are confidential. Do not share the paper or your review, do not upload the paper to third-party tools, and declare conflicts of interest to the chairs. Check NeurIPS's own rules on the use of LLMs."
+  }
+  Frame label="Reviewer workbench (private - never exported)" private {
+    Info label="About this section" text="Your own notes and checklist. They are saved with the review but excluded from the exported text."
+    Checkbox id=chk_read label="First quick read done (abstract, introduction, figures, conclusions)" private
+    Checkbox id=chk_claims label="Listed the paper's claims and checked that each one is supported" private
+    Checkbox id=chk_method label="Checked the method / assumptions / key proof steps" private
+    Checkbox id=chk_exp label="Checked the evaluation: baselines, data, metrics, variance, ablations" private
+    Checkbox id=chk_related label="Checked related work and the novelty claims" private
+    Checkbox id=chk_repro label="Checked reproducibility (code, data, hyperparameters, appendix)" private
+    Checkbox id=chk_ethics label="Checked ethics, conflicts of interest and dual submission" private
+    Checkbox id=chk_consistent label="My scores are consistent with the text of my review" private
+    Textarea id=notes_questions label="Questions to ask the authors" private
+    Textarea id=notes_reading label="Notes while reading (page, issue)" private rows=10
+  }
+}

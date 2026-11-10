@@ -1,0 +1,117 @@
+# PLOS ONE reviewer form, built from the public reviewer guidelines: technically sound and conclusions supported; statistical analysis;
+# data availability; intelligible English; comments to the author; confidential comments; recommendation. PLOS ONE reviewers do NOT assess
+# novelty or impact. Check the exact wording in the review system.
+
+Sitemap label="PLOS ONE - Reviewer form" venue="PLOS ONE" kind=journal year=2025 fidelity=guidelines source="https://journals.plos.org/plosone/s/reviewer-guidelines" description="Technical soundness, statistics, data availability, intelligibility, comments to authors, recommendation. Novelty is not assessed." {
+  Frame label="Paper (private bookkeeping)" private {
+    Text id=paper_title label="Paper title" private
+    Text id=paper_id label="Submission number" private placeholder="e.g. 1234"
+  }
+  Info label="How to use this form" text="Fill this form field by field; click \"What does this mean?\" under any field for an explanation. Suggested order: read the paper once, take notes in the private workbench at the bottom, write the summary, then strengths and weaknesses, and pick the scores last so that they follow from your arguments. Never upload a submission to a third-party AI service, and check the venue's policy on LLM use in reviews."
+  Info label="About this map" text="Built from the venue's public reviewer guidelines (2025); the official review form could not be verified word for word, so field names and scales may differ from the form you receive. Treat this as a structured checklist and adapt it (Form menu, upload your own version) if your form differs. PLOS ONE judges whether the research is technically sound and the conclusions are supported by the data. Importantly, reviewers are asked NOT to consider novelty or perceived impact. This map follows the questions on its reviewer form: soundness, statistics, data availability, intelligibility, comments, recommendation."
+  Frame label="Reviewer questionnaire" {
+    Choice id=sound label="Is the manuscript technically sound, and do the data support the conclusions?" required help="""
+        WHAT IS ASKED
+        The central PLOS ONE criterion: is the science rigorous enough that the conclusions are supported by the data?
+        Judge soundness only. Do NOT judge whether the result is novel, surprising or important: PLOS ONE explicitly excludes this.
+
+        HOW TO ANSWER
+        - Yes: experiments were performed rigorously and conclusions follow from the data.
+        - Partly: sound in places, but some conclusions go beyond the data or controls are missing. Explain which.
+        - No: the main conclusions are not supported.
+
+      """ {
+      Option value=yes label="Yes"
+      Option value=partly label="Partly"
+      Option value=no label="No"
+    }
+    Choice id=statistics label="Has the statistical analysis been performed appropriately and rigorously?" required help="Answer I don't know if the statistics are outside your expertise, and say so in your comments: the editor can ask a statistical reviewer. Check tests, sample sizes, multiple comparisons and whether the analysis matches the design." {
+      Option value=yes label="Yes"
+      Option value=no label="No"
+      Option value=unsure label="I don't know"
+    }
+    Choice id=data_available label="Have the authors made all data underlying the findings fully available?" required help="PLOS requires the data underlying the findings to be publicly available (in the paper, supporting information or a repository) except for stated, justified restrictions. Check the Data Availability statement." {
+      Option value=yes label="Yes"
+      Option value=no label="No"
+    }
+    Choice id=language label="Is the manuscript presented in an intelligible fashion and written in standard English?" required help="Answer No only if the language prevents understanding. PLOS ONE does not require perfect English, only that it is clear and unambiguous." {
+      Option value=yes label="Yes"
+      Option value=no label="No"
+    }
+  }
+  Frame label="Review comments" {
+    Markdown id=summary label="Summary" hint="Briefly summarise the study and what it claims." help="""
+        WHAT IS ASKED
+        A neutral summary of the paper in your own words: the problem, the approach, the evidence and the headline result.
+
+        WHY IT MATTERS
+        It shows the authors and the chair that you understood the paper, and gives anyone who skips the rest the context for your scores. If your summary is wrong, the paper was unclear.
+
+        GOOD PRACTICE
+        - 5-10 lines. No judgement here: save it for strengths and weaknesses.
+        - Describe claims as "the authors claim / show / propose".
+        - Test: could the authors read it and say "yes, that is what we did"?
+
+        COMMON MISTAKES
+        - Copying the abstract: it shows nothing about your understanding.
+        - Describing only the problem, not the contribution.
+        - Slipping opinions in ("a nice but incremental idea").
+      """
+    Markdown id=comments label="Review comments to the author" required hint="Please provide your feedback on the manuscript in a numbered list: major points first, then minor ones." help="""
+        WHAT IS ASKED
+        The substance of your review. PLOS ONE asks you to focus on the publication criteria:
+        - Methods and conclusions: is the work rigorous and are the conclusions supported?
+        - Reporting: are methods described so the work could be repeated? Are ethical approvals and consent stated?
+        - Data and statistics as above.
+        DO NOT comment on novelty or significance. If you think a conclusion is overstated, say which sentence and what the data allow.
+
+        GOOD PRACTICE
+        - Number the points so the authors can respond one by one.
+        - Be specific about what additional analysis or wording change would resolve each concern.
+
+        WHAT IS ASKED
+        The problems that stand between this paper and acceptance, and what it would take to fix them.
+
+        GOOD PRACTICE
+        - Order by importance. Separate MAJOR concerns (claims not supported, flawed evaluation, missing analysis) from MINOR ones (typos, wording).
+        - For each point: what the issue is, where it is, why it matters, what would resolve it.
+        - Criticise the work, never the authors. Separate facts ("Table 2 has no variance") from opinions ("I find the benchmark weak").
+        - Do not penalise a paper for something outside its stated scope, but do flag claims that go beyond the evidence.
+        - Do not ask for endless extra experiments: request those that test the central claim.
+      """
+    Markdown id=confidential label="Confidential comments to the editor" hint="Not shown to the authors."
+  }
+  Frame label="Recommendation" {
+    Choice id=recommendation label="Recommendation" required help="""
+        HOW TO CHOOSE
+        Base it only on soundness and reporting, not on novelty or impact.
+        - Accept: meets all publication criteria.
+        - Minor revision: sound; small changes needed.
+        - Major revision: conclusions or analysis must change to be supported by the data.
+        - Reject: fundamental flaws that revision cannot fix.
+
+      """ {
+      Option value=accept label="Accept"
+      Option value=minor label="Minor revision"
+      Option value=major label="Major revision"
+      Option value=reject label="Reject"
+    }
+    Choice id=open_review label="Do you want your identity to be public for this peer review?" hint="PLOS lets reviewers choose whether to sign." help="Signed reviews are published with the paper's peer-review history. You can stay anonymous; the choice is yours." {
+      Option value=yes label="Yes"
+      Option value=no label="No"
+    }
+  }
+  Frame label="Reviewer workbench (private - never exported)" private {
+    Info label="About this section" text="Your own notes and checklist. They are saved with the review but excluded from the exported text."
+    Checkbox id=chk_read label="First quick read done (abstract, introduction, figures, conclusions)" private
+    Checkbox id=chk_claims label="Listed the paper's claims and checked that each one is supported" private
+    Checkbox id=chk_method label="Checked the method / assumptions / key proof steps" private
+    Checkbox id=chk_exp label="Checked the evaluation: baselines, data, metrics, variance, ablations" private
+    Checkbox id=chk_related label="Checked related work and the novelty claims" private
+    Checkbox id=chk_repro label="Checked reproducibility (code, data, hyperparameters, appendix)" private
+    Checkbox id=chk_ethics label="Checked ethics, conflicts of interest and dual submission" private
+    Checkbox id=chk_consistent label="My scores are consistent with the text of my review" private
+    Textarea id=notes_questions label="Questions to ask the authors" private
+    Textarea id=notes_reading label="Notes while reading (page, issue)" private rows=10
+  }
+}

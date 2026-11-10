@@ -20,7 +20,7 @@ class ServerCase(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self._tmp.cleanup)
-        self.store = Store(Path(self._tmp.name) / "data", ROOT / "defaults" / "default.map")
+        self.store = Store(Path(self._tmp.name) / "data", ROOT / "maps")
         self.httpd = server.make_server("127.0.0.1", 0, self.store, ROOT / "static")
         self.port = self.httpd.server_address[1]
         t = threading.Thread(target=self.httpd.serve_forever, daemon=True)
@@ -124,10 +124,49 @@ class TestApi(ServerCase):
         self.assertEqual((st, r["id"]), (201, "old1"))
         self.assertEqual(self.req("POST", "/api/reviews/import", {"nope": 1})[0], 400)
 
-    def test_info_and_health_and_no_auth(self):
-        st, info = self.jreq("GET", "/api/info")
+    def test_templates_listing_and_create_from_template(self):
+        st, ts = self.jreq("GET", "/api/templates")
         self.assertEqual(st, 200)
-        self.assertTrue(info["defaultMapLabel"])
+        by_id = {x["id"]: x for x in ts}
+        self.assertGreaterEqual(len(by_id), 20)
+        self.assertEqual((by_id["icml-2025"]["kind"], by_id["icml-2025"]["fidelity"]), ("conference", "form"))
+        st, r = self.jreq("POST", "/api/reviews", {"template": "iclr-2025", "title": "My paper"})
+        self.assertEqual((st, r["template"], r["title"]), (201, "iclr-2025", "My paper"))
+        st, tree = self.jreq("GET", f"/api/reviews/{r['id']}/map")
+        self.assertEqual(tree["attrs"]["label"], "ICLR 2025 - Review")
+        self.assertEqual(self.jreq("POST", "/api/reviews", {"template": "nope"})[0], 404)
+        self.assertEqual(self.jreq("POST", "/api/reviews", {"template": "../x"})[0], 400)
+        st, lst = self.jreq("GET", "/api/reviews")
+        self.assertEqual((lst[0]["template"], lst[0]["mapLabel"], lst[0]["progress"]["filled"]), ("iclr-2025", "ICLR 2025 - Review", 0))
+
+    def test_switch_template_keeps_answers(self):
+        rid = self.new_review()
+        self.jreq("PUT", f"/api/reviews/{rid}", {"valuesPatch": {"summary": "kept"}})
+        st, _ = self.jreq("POST", f"/api/reviews/{rid}/template", {"template": "tmlr"})
+        self.assertEqual(st, 200)
+        self.assertEqual(self.jreq("GET", f"/api/reviews/{rid}/map")[1]["attrs"]["venue"], "TMLR")
+        got = self.jreq("GET", f"/api/reviews/{rid}")[1]
+        self.assertEqual((got["template"], got["values"]), ("tmlr", {"summary": "kept"}))
+        self.assertEqual(self.jreq("POST", f"/api/reviews/{rid}/template", {"template": "nope"})[0], 404)
+        self.assertEqual(self.jreq("POST", f"/api/reviews/{rid}/template", {})[0], 400)
+
+    def test_custom_template_upload_list_use_and_delete(self):
+        st, _ = self.jreq("PUT", "/api/templates/my-venue", GOOD_MAP.encode(), {"Content-Type": "text/plain"})
+        self.assertEqual(st, 200)
+        by_id = {x["id"]: x for x in self.jreq("GET", "/api/templates")[1]}
+        self.assertTrue(by_id["my-venue"]["custom"])
+        st, r = self.jreq("POST", "/api/reviews", {"template": "my-venue"})
+        self.assertEqual(self.jreq("GET", f"/api/reviews/{r['id']}/map")[1]["attrs"]["label"], "Tiny")
+        st, err = self.jreq("PUT", "/api/templates/broken", b"Sitemap {{{")
+        self.assertEqual(st, 422)
+        self.assertIn("map error", err["error"])
+        self.assertNotIn("broken", {x["id"] for x in self.jreq("GET", "/api/templates")[1]})
+        self.assertEqual(self.jreq("DELETE", "/api/templates/my-venue")[0], 200)
+        self.assertEqual(self.jreq("DELETE", "/api/templates/my-venue")[0], 404)
+        self.assertEqual(self.jreq("DELETE", "/api/templates/blank")[0], 404)  # bundled ones are read-only
+        self.assertEqual(self.jreq("GET", f"/api/reviews/{r['id']}/map")[1]["attrs"]["label"], "Tiny")  # existing review keeps its copy
+
+    def test_health_and_no_auth(self):
         st, _, body = self.req("GET", "/healthz")
         self.assertEqual((st, body), (200, b"ok"))
         self.assertEqual(self.req("GET", "/api/reviews")[0], 200)

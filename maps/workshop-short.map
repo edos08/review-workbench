@@ -1,6 +1,7 @@
 # A very short review, e.g. for a workshop or extended abstract (generic, not an official form).
 
-Sitemap label="Workshop - short review" venue="Workshop" {
+Sitemap label="Short review (workshop / extended abstract)" venue="Workshop" kind=general fidelity=generic
+  description="A very short review: free comments and an accept / revise / reject decision." {
 
   Markdown id=comments label="Comments to the authors" required hint="A few paragraphs: what is good, what to improve."
 

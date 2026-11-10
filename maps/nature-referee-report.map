@@ -1,0 +1,97 @@
+# Referee report in the style requested by Nature Portfolio journals (e.g. Nature Communications): key results; originality and
+# significance; data and methodology; statistics and uncertainties; conclusions; suggested improvements; references; clarity and
+# context; confidential comments. Built from public guidance: each journal's own form may differ.
+
+Sitemap label="Nature Portfolio - Referee report" venue="Nature Portfolio" kind=journal year=2025 fidelity=guidelines source="https://www.nature.com/ncomms/for-reviewers/reviewer-faqs" description="Key results, originality and significance, data and methodology, statistics, conclusions, suggested improvements, references, clarity, confidential comments." {
+  Frame label="Paper (private bookkeeping)" private {
+    Text id=paper_title label="Paper title" private
+    Text id=paper_id label="Submission number" private placeholder="e.g. 1234"
+  }
+  Info label="How to use this form" text="Fill this form field by field; click \"What does this mean?\" under any field for an explanation. Suggested order: read the paper once, take notes in the private workbench at the bottom, write the summary, then strengths and weaknesses, and pick the scores last so that they follow from your arguments. Never upload a submission to a third-party AI service, and check the venue's policy on LLM use in reviews."
+  Info label="About this map" text="Built from the venue's public reviewer guidelines (2025); the official review form could not be verified word for word, so field names and scales may differ from the form you receive. Treat this as a structured checklist and adapt it (Form menu, upload your own version) if your form differs. Nature Portfolio journals ask referees to address the points below in a free-form report, and to keep confidential comments separate. This map follows that structure (key results, originality and significance, data and methodology, statistics and uncertainties, conclusions, suggested improvements, references, clarity and context)."
+  Frame label="Referee report" {
+    Markdown id=summary label="Key results" required hint="Summarise the manuscript's key results, in your own words, as a non-specialist editor would need." help="""
+        WHAT IS ASKED
+        A short, neutral account of what was found and how. The editor uses it to judge whether you understood the work, and it also shows the authors how a careful reader reads it.
+
+      """
+    Markdown id=originality label="Originality and significance" required hint="Is the work original? How does it compare with the state of the art? Who will be interested, and does it matter beyond the narrow field?" help="""
+        WHAT IS ASKED
+        Nature-family journals select on SIGNIFICANCE as well as soundness: would the result matter to a broad readership, and is it a real advance?
+
+        GOOD PRACTICE
+        - Name prior work the paper should be compared with.
+        - Distinguish "important but incremental" from "important and new".
+
+      """
+    Markdown id=data_methods label="Data and methodology" required hint="Are the data and methods valid and described in enough detail to be repeated?" help="""
+        WHAT TO CHECK
+        - Is the experimental or computational design appropriate for the question? Controls, sample sizes, blinding, randomisation?
+        - Is there enough detail to reproduce it? Are data and code deposited?
+        - Are there technical problems, artefacts or alternative explanations?
+
+      """
+    Markdown id=statistics label="Statistics and treatment of uncertainties" required hint="Are the statistical analyses appropriate and the uncertainties treated correctly?" help="""
+        WHAT IS ASKED
+        Whether the statistics support the claims. If this is outside your expertise, say so: the editor can find a statistical referee.
+
+        WHAT TO CHECK
+        - Tests suited to the data, multiple-comparison control, effect sizes with confidence intervals, replicates.
+        - Whether error bars are defined and conclusions stay within the uncertainty.
+
+      """
+    Markdown id=conclusions label="Conclusions" required hint="Are the conclusions robust, valid and reliable? Does the evidence support the claims?"
+    Markdown id=improvements label="Suggested improvements" required hint="Experiments, analyses or revisions that would strengthen the paper. Separate essential from optional." help="""
+        WHAT IS ASKED
+        The problems that stand between this paper and acceptance, and what it would take to fix them.
+
+        GOOD PRACTICE
+        - Order by importance. Separate MAJOR concerns (claims not supported, flawed evaluation, missing analysis) from MINOR ones (typos, wording).
+        - For each point: what the issue is, where it is, why it matters, what would resolve it.
+        - Criticise the work, never the authors. Separate facts ("Table 2 has no variance") from opinions ("I find the benchmark weak").
+        - Do not penalise a paper for something outside its stated scope, but do flag claims that go beyond the evidence.
+        - Do not ask for endless extra experiments: request those that test the central claim.
+      """
+    Markdown id=references label="References" hint="Does the paper cite earlier work appropriately and fairly?"
+    Markdown id=clarity label="Clarity and context" hint="Are the abstract and introduction clear? Is the work placed in its context? Is the writing accessible to a broad readership?"
+  }
+  Frame label="Confidential to the editor" {
+    Markdown id=confidential label="Confidential comments" hint="Not shown to the authors. Concerns about ethics, data integrity, overlap, or your expertise limits."
+    Choice id=recommendation label="Suggested recommendation (confidential)" hint="Optional: many Nature-family journals do not ask for an explicit decision." {
+      Option value=publish label="Publish as is or with minor changes"
+      Option value=revise label="Publish after substantial revision"
+      Option value=reject label="Not suitable for this journal"
+    }
+    Choice id=confidence label="Your expertise" help="""
+        WHAT IS ASKED
+        How much the chair should trust YOUR review. It is a statement about you, not about the paper.
+
+        WHY IT MATTERS
+        Chairs weight reviews by confidence. Overstating it lets a mistaken review count too much; understating it wastes a good one. Honesty here is a sign of a good reviewer, and being new to an area is a legitimate reason for a lower number.
+
+        HOW TO CHOOSE
+        Ask yourself:
+        - Do I know this subarea and its main prior work well enough to judge novelty?
+        - Did I read the whole paper, including the appendix, and check the technical parts?
+        - Did I understand the central contribution?
+        If you could not verify proofs or are unsure about prior work, choose 3 or lower and say precisely what you did not check in the review.
+      """ {
+      Option value=3 label="3 - Expert in this exact area"
+      Option value=2 label="2 - Knowledgeable"
+      Option value=1 label="1 - Outside my area"
+    }
+  }
+  Frame label="Reviewer workbench (private - never exported)" private {
+    Info label="About this section" text="Your own notes and checklist. They are saved with the review but excluded from the exported text."
+    Checkbox id=chk_read label="First quick read done (abstract, introduction, figures, conclusions)" private
+    Checkbox id=chk_claims label="Listed the paper's claims and checked that each one is supported" private
+    Checkbox id=chk_method label="Checked the method / assumptions / key proof steps" private
+    Checkbox id=chk_exp label="Checked the evaluation: baselines, data, metrics, variance, ablations" private
+    Checkbox id=chk_related label="Checked related work and the novelty claims" private
+    Checkbox id=chk_repro label="Checked reproducibility (code, data, hyperparameters, appendix)" private
+    Checkbox id=chk_ethics label="Checked ethics, conflicts of interest and dual submission" private
+    Checkbox id=chk_consistent label="My scores are consistent with the text of my review" private
+    Textarea id=notes_questions label="Questions to ask the authors" private
+    Textarea id=notes_reading label="Notes while reading (page, issue)" private rows=10
+  }
+}

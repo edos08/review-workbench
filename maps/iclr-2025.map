@@ -1,0 +1,175 @@
+# ICLR 2025 review, modelled on the published OpenReview form (Summary; Soundness, Presentation, Contribution on 1-4;
+# Strengths; Weaknesses; Questions; Flag for ethics review; Rating from {1,3,5,6,8,10}; Confidence 1-5).
+# Not an official form: check the one you receive.
+
+Sitemap label="ICLR 2025 - Review" venue="ICLR" kind=conference year=2025 fidelity=form source="https://www.iclr.cc/Conferences/2025/ReviewerGuide" description="Summary, strengths, weaknesses, questions, 1-4 soundness / presentation / contribution, rating 1-10 (six levels), confidence." {
+  Frame label="Paper (private bookkeeping)" private {
+    Text id=paper_title label="Paper title" private
+    Text id=paper_id label="Submission number" private placeholder="e.g. 1234"
+  }
+  Info label="How to use this form" text="Fill this form field by field; click \"What does this mean?\" under any field for an explanation. Suggested order: read the paper once, take notes in the private workbench at the bottom, write the summary, then strengths and weaknesses, and pick the scores last so that they follow from your arguments. Never upload a submission to a third-party AI service, and check the venue's policy on LLM use in reviews."
+  Info label="About this map" text="Modelled on the review form published by the venue for 2025. Venues change wording and scales between years and tracks: when you copy your answers into the real system, follow the form you were given."
+  Frame label="Written review" {
+    Markdown id=summary label="Summary" required hint="Briefly summarise the paper and its contributions. This is not the place to critique the paper." help="""
+        WHAT IS ASKED
+        A neutral summary of the paper in your own words: the problem, the approach, the evidence and the headline result.
+
+        WHY IT MATTERS
+        It shows the authors and the chair that you understood the paper, and gives anyone who skips the rest the context for your scores. If your summary is wrong, the paper was unclear.
+
+        GOOD PRACTICE
+        - 5-10 lines. No judgement here: save it for strengths and weaknesses.
+        - Describe claims as "the authors claim / show / propose".
+        - Test: could the authors read it and say "yes, that is what we did"?
+
+        COMMON MISTAKES
+        - Copying the abstract: it shows nothing about your understanding.
+        - Describing only the problem, not the contribution.
+        - Slipping opinions in ("a nice but incremental idea").
+      """
+    Markdown id=strengths label="Strengths" required hint="A substantive assessment of the strengths: originality, quality, clarity, significance." help="""
+        WHAT IS ASKED
+        What the paper does well.
+
+        GOOD PRACTICE
+        - Be specific: point to a section, figure, table or theorem instead of "well written".
+        - Cover originality, technical quality, clarity and significance, in the terms the venue uses.
+        - Strengths are not filler: the chair uses them to see what you would defend in the discussion.
+      """
+    Markdown id=weaknesses label="Weaknesses" required hint="A substantive assessment of the weaknesses. Be constructive and specific." help="""
+        WHAT IS ASKED
+        The problems that stand between this paper and acceptance, and what it would take to fix them.
+
+        GOOD PRACTICE
+        - Order by importance. Separate MAJOR concerns (claims not supported, flawed evaluation, missing analysis) from MINOR ones (typos, wording).
+        - For each point: what the issue is, where it is, why it matters, what would resolve it.
+        - Criticise the work, never the authors. Separate facts ("Table 2 has no variance") from opinions ("I find the benchmark weak").
+        - Do not penalise a paper for something outside its stated scope, but do flag claims that go beyond the evidence.
+        - Do not ask for endless extra experiments: request those that test the central claim.
+      """
+    Markdown id=questions label="Questions" required hint="Questions and suggestions for the authors." help="""
+        WHAT IS ASKED
+        Questions whose answers could change your assessment.
+
+        GOOD PRACTICE
+        - Number them so the authors can answer one by one in the rebuttal.
+        - Ask for clarification of what is unclear, or evidence for a specific claim. Avoid requests that need weeks of new work.
+        - If nothing could change your mind, say so and explain why in the review instead.
+      """
+  }
+  Frame label="Scores" {
+    Choice id=soundness label="Soundness" required hint="Soundness of the technical claims, experimental and research methodology, and whether the central claims are adequately supported with evidence." help="""
+        WHAT IS ASKED
+        Whether the technical content is correct and the claims are backed by evidence.
+
+        WHAT TO CHECK
+        - Theory and experiments support the main claims? Baselines and ablations adequate? Limitations acknowledged?
+
+        HOW TO CHOOSE
+        Anchor on the weakest important link.
+        Score each dimension on its own: a paper can be sound but dull, or exciting but badly written.
+
+      """ {
+      Option value=4 label="4: excellent"
+      Option value=3 label="3: good"
+      Option value=2 label="2: fair"
+      Option value=1 label="1: poor"
+    }
+    Choice id=presentation label="Presentation" required hint="Quality of the writing, how well the contribution is contextualised relative to prior work." help="""
+        WHAT IS ASKED
+        Writing quality and positioning in the literature.
+
+        WHAT TO CHECK
+        - Clear structure, readable figures, consistent notation? Prior work described fairly?
+
+        HOW TO CHOOSE
+        Do not let writing quality leak into soundness.
+        Score each dimension on its own: a paper can be sound but dull, or exciting but badly written.
+
+      """ {
+      Option value=4 label="4: excellent"
+      Option value=3 label="3: good"
+      Option value=2 label="2: fair"
+      Option value=1 label="1: poor"
+    }
+    Choice id=contribution label="Contribution" required hint="Quality of the overall contribution to the research area being studied." help="""
+        WHAT IS ASKED
+        How much the paper adds to the field. Consider both novelty and importance.
+
+        WHAT TO CHECK
+        - A new idea, result, tool or insight others will use? Is the claimed gain real?
+
+        HOW TO CHOOSE
+        A careful empirical study or a useful resource can be a strong contribution without a new algorithm.
+        Score each dimension on its own: a paper can be sound but dull, or exciting but badly written.
+
+      """ {
+      Option value=4 label="4: excellent"
+      Option value=3 label="3: good"
+      Option value=2 label="2: fair"
+      Option value=1 label="1: poor"
+    }
+  }
+  Frame label="Recommendation" {
+    Choice id=rating label="Rating" required hint="Your overall recommendation. Note the scale is not continuous: 2, 4, 7 and 9 do not exist." help="""
+        WHAT IS ASKED
+        Your overall verdict. ICLR uses six levels (1, 3, 5, 6, 8, 10): the gap between 5 and 6 is the accept/reject threshold.
+
+        HOW TO CHOOSE
+        - 8 or 10: you would argue to accept. 10 is for work that should be highlighted at the conference and is rare.
+        - 6 / 5: genuinely borderline. State in the review what would make you change your mind.
+        - 3 / 1: significant problems that the discussion period cannot fix.
+
+        CALIBRATION
+        Scores are relative to the whole pool of submissions to this venue. Most papers sit in the middle of the scale; the extremes carry heavy weight in the discussion, so make sure your text defends them. Be consistent: a review that lists mostly weaknesses should not carry a high score, and the reverse.
+      """ {
+      Option value=10 label="10: strong accept, should be highlighted at the conference"
+      Option value=8 label="8: accept, good paper"
+      Option value=6 label="6: marginally above the acceptance threshold"
+      Option value=5 label="5: marginally below the acceptance threshold"
+      Option value=3 label="3: reject, not good enough"
+      Option value=1 label="1: strong reject"
+    }
+    Choice id=confidence label="Confidence" required hint="How confident are you in this review?" help="""
+        WHAT IS ASKED
+        How much the chair should trust YOUR review. It is a statement about you, not about the paper.
+
+        WHY IT MATTERS
+        Chairs weight reviews by confidence. Overstating it lets a mistaken review count too much; understating it wastes a good one. Honesty here is a sign of a good reviewer, and being new to an area is a legitimate reason for a lower number.
+
+        HOW TO CHOOSE
+        Ask yourself:
+        - Do I know this subarea and its main prior work well enough to judge novelty?
+        - Did I read the whole paper, including the appendix, and check the technical parts?
+        - Did I understand the central contribution?
+        If you could not verify proofs or are unsure about prior work, choose 3 or lower and say precisely what you did not check in the review.
+      """ {
+      Option value=5 label="5: The reviewer is absolutely certain that the evaluation is correct and very familiar with the relevant literature"
+      Option value=4 label="4: The reviewer is confident but not absolutely certain that the evaluation is correct"
+      Option value=3 label="3: The reviewer is fairly confident that the evaluation is correct"
+      Option value=2 label="2: The reviewer is willing to defend the evaluation, but it is quite likely that the reviewer did not understand central parts of the paper"
+      Option value=1 label="1: The reviewer's evaluation is an educated guess"
+    }
+    Markdown id=ethics label="Flag for ethics review" hint="Describe any ethical issues, or write: No ethics review needed." help="""
+        WHAT IS ASKED
+        Flag serious ethical concerns so that the right people can look at them.
+
+        WHEN TO FLAG
+        Human-subject data without consent or approval, privacy violations, harmful applications, discriminatory data or methods, license violations, research-integrity problems. Describe the concern briefly and factually. If you have none, say so explicitly.
+      """
+    Checkbox id=code_of_conduct label="I acknowledge that I have read the ICLR code of conduct for reviewers and that my review follows it" required help="Reviews are confidential. Do not share the paper or your review, do not upload the paper to third-party tools, and declare conflicts of interest to the chairs. Check ICLR's own rules on the use of LLMs."
+  }
+  Frame label="Reviewer workbench (private - never exported)" private {
+    Info label="About this section" text="Your own notes and checklist. They are saved with the review but excluded from the exported text."
+    Checkbox id=chk_read label="First quick read done (abstract, introduction, figures, conclusions)" private
+    Checkbox id=chk_claims label="Listed the paper's claims and checked that each one is supported" private
+    Checkbox id=chk_method label="Checked the method / assumptions / key proof steps" private
+    Checkbox id=chk_exp label="Checked the evaluation: baselines, data, metrics, variance, ablations" private
+    Checkbox id=chk_related label="Checked related work and the novelty claims" private
+    Checkbox id=chk_repro label="Checked reproducibility (code, data, hyperparameters, appendix)" private
+    Checkbox id=chk_ethics label="Checked ethics, conflicts of interest and dual submission" private
+    Checkbox id=chk_consistent label="My scores are consistent with the text of my review" private
+    Textarea id=notes_questions label="Questions to ask the authors" private
+    Textarea id=notes_reading label="Notes while reading (page, issue)" private rows=10
+  }
+}

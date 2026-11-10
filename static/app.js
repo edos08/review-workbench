@@ -101,10 +101,155 @@ async function pdfGet(id) {
 async function pdfDel(id) { try { const db = await pdfDB(); db.transaction("pdfs", "readwrite").objectStore("pdfs").delete(id); } catch {} }
 
 /* ---------- home ---------- */
+const KIND_LABEL = { conference: "Conference", journal: "Journal", general: "General" };
+const FIDELITY = {
+  form: { text: "Follows the published form", cls: "ok", tip: "Modelled on the review form the venue published. Venues change wording and scales between years: follow the form you actually receive." },
+  guidelines: { text: "From public guidelines · verify wording", cls: "warn", tip: "Built from the venue's public reviewer guidelines; the official form could not be verified word for word. Check field names and scales against the real form." },
+  generic: { text: "Generic template", cls: "plain", tip: "Not tied to a specific venue." },
+};
+const slugId = name => name.replace(/\.[^.]+$/, "").toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
+function ago(t) {
+  if (!t) return "";
+  const s = Date.now() / 1000 - t;
+  if (s < 60) return "just now";
+  if (s < 3600) return `${Math.floor(s / 60)} min ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)} h ago`;
+  if (s < 7 * 86400) return `${Math.floor(s / 86400)} d ago`;
+  return new Date(t * 1000).toLocaleDateString();
+}
+const groupTemplates = list => [
+  ["My maps", list.filter(t => t.custom)],
+  ["Conferences", list.filter(t => !t.custom && t.kind === "conference")],
+  ["Journals", list.filter(t => !t.custom && t.kind === "journal")],
+  ["General", list.filter(t => !t.custom && t.kind === "general")],
+].filter(g => g[1].length);
+
+/* searchable, grouped dropdown for choosing a review form */
+function templatePicker(templates, initialId, onChange) {
+  let current = templates.find(t => t.id === initialId) || null;   // nothing preselected unless you used one before
+  let visible = [], active = 0, isOpen = false;
+  const label = h("span", { class: "combo-label" }), meta = h("span", { class: "combo-meta" });
+  const btn = h("button", { type: "button", class: "combo-btn", "aria-haspopup": "listbox", "aria-expanded": "false", onclick: () => setOpen(!isOpen) },
+    h("span", { class: "combo-text" }, label, meta), h("span", { class: "chev", "aria-hidden": "true" }, "▾"));
+  const search = h("input", { type: "search", class: "combo-search", placeholder: "Search: NeurIPS, journal, ACL, …", "aria-label": "Search review forms",
+    oninput: () => { active = 0; renderList(); }, onkeydown: e => {
+      if (e.key === "ArrowDown") { e.preventDefault(); active = Math.min(visible.length - 1, active + 1); renderList(true); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); active = Math.max(0, active - 1); renderList(true); }
+      else if (e.key === "Enter") { e.preventDefault(); if (visible[active]) choose(visible[active]); }
+      else if (e.key === "Escape") { setOpen(false); btn.focus(); }
+    } });
+  const list = h("div", { class: "combo-list", role: "listbox" });
+  const legend = h("div", { class: "combo-legend" }, h("span", {}, h("span", { class: "dot-fid ok" }), " follows the published form"), h("span", {}, h("span", { class: "dot-fid warn" }), " from public guidelines: verify wording"));
+  const pop = h("div", { class: "combo-pop", hidden: true }, search, list, legend);
+  const root = h("div", { class: "combo" }, btn, pop);
+  const outside = e => { if (!root.contains(e.target)) setOpen(false); };
+  const metaText = t => [t.venue, t.year].filter(Boolean).join(" · ");
+  function paintButton() {
+    label.textContent = current ? current.label : "Choose a review form…"; meta.textContent = current ? metaText(current) : `${templates.length} forms: conferences, journals and generic`;
+    btn.classList.toggle("placeholder", !current);
+  }
+  function setOpen(v) {
+    isOpen = v; pop.hidden = !v; btn.setAttribute("aria-expanded", String(v));
+    if (v) { search.value = ""; active = Math.max(0, visible.findIndex(t => t.id === current?.id)); renderList(true); search.focus(); document.addEventListener("mousedown", outside); }
+    else document.removeEventListener("mousedown", outside);
+  }
+  function choose(t) { current = t; paintButton(); setOpen(false); onChange(t); }
+  function renderList(scroll) {
+    const q = search.value.trim().toLowerCase();
+    const match = t => !q || [t.label, t.venue, t.description, KIND_LABEL[t.kind], t.year].join(" ").toLowerCase().includes(q);
+    const groups = groupTemplates(templates.filter(match));
+    visible = groups.flatMap(g => g[1]);
+    active = Math.min(active, Math.max(0, visible.length - 1));
+    list.replaceChildren(...(groups.length ? groups.flatMap(([name, items]) => [
+      h("div", { class: "combo-group" }, name),
+      ...items.map(t => h("div", { class: "combo-opt" + (visible[active] === t ? " active" : "") + (t.id === current?.id ? " current" : ""), role: "option", "aria-selected": String(t.id === current?.id),
+        onmousedown: e => { e.preventDefault(); choose(t); }, onmousemove: () => { const i = visible.indexOf(t); if (i !== active) { active = i; renderList(); } } },
+        h("span", { class: "opt-main" }, h("span", { class: "opt-label" }, t.label),
+          h("span", { class: "opt-meta" }, metaText(t) + (t.error ? " · has an error" : ""))),
+        h("span", { class: "dot-fid " + (FIDELITY[t.fidelity] || FIDELITY.generic).cls, title: (FIDELITY[t.fidelity] || FIDELITY.generic).text })))])
+      : [h("div", { class: "combo-empty" }, "No form matches. Try another word, or add your own map.")]));
+    if (scroll) list.querySelector(".combo-opt.active")?.scrollIntoView({ block: "nearest" });
+  }
+  paintButton();
+  return { el: root, get current() { return current; }, set(id) { current = templates.find(t => t.id === id) || current; paintButton(); onChange(current); } };
+}
+
 async function showHome(token) {
   document.title = "Review Workbench";
-  const [info, reviews] = await Promise.all([api("GET", "/api/info"), api("GET", "/api/reviews")]);
+  const [templates0, reviews] = await Promise.all([api("GET", "/api/templates"), api("GET", "/api/reviews")]);
   if (token !== navToken) return;
+  let templates = templates0, filter = "all", query = "";
+  let remembered = null; try { remembered = localStorage.getItem("rw.template"); } catch {}
+
+  /* --- new review --- */
+  const previewEl = h("aside", { class: "tpl-preview" });
+  const titleIn = h("input", { type: "text", class: "text-in", placeholder: "Paper title or submission number (optional)", "aria-label": "Paper title (optional)", onkeydown: e => { if (e.key === "Enter") start(); } });
+  const startBtn = h("button", { class: "btn-primary big", onclick: () => start() }, "Start review");
+  const mapIn = h("input", { type: "file", accept: ".map,.txt,text/plain", style: "display:none", onchange: async e => {
+    const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+    const id = slugId(f.name);
+    if (!id) return alert("Could not derive a name from that file name.");
+    const clash = templates.find(t => t.id === id && !t.custom);
+    if (clash && !confirm(`"${clash.label}" is one of the bundled forms. Your file will take its place (you can remove your copy later to get the original back). Continue?`)) return;
+    try { await apiRaw("PUT", `/api/templates/${id}`, await f.text(), "text/plain"); await reloadTemplates(id); toast("Map added to your list"); }
+    catch (err) { alert("Map not added: " + err.message); }
+  } });
+  let picker = templatePicker(templates, remembered, t => renderPreview(t));
+  async function reloadTemplates(selectId) {
+    templates = await api("GET", "/api/templates");
+    picker = templatePicker(templates, selectId || picker.current?.id, t => renderPreview(t));
+    pickerHost.replaceChildren(picker.el);
+    renderPreview(picker.current);
+  }
+  const pickerHost = h("div", {}, picker.el);
+  function renderPreview(t) {
+    startBtn.disabled = !t || !!t.error;
+    if (!t) {
+      const n = k => templates.filter(x => !x.custom && x.kind === k).length;
+      previewEl.replaceChildren(h("div", { class: "preview-empty" }, h("div", { class: "empty-icon", "aria-hidden": "true" }, "🗂️"),
+        h("h3", {}, "Pick a form to get started"),
+        h("p", { class: "tpl-desc" }, `${n("conference")} conferences, ${n("journal")} journals and a few generic forms, each with explanations for every field. `
+          + "Choose one on the left to see what it contains and how closely it follows the venue's own form."),
+        h("p", { class: "tpl-desc" }, "Your venue not listed? Add your own map, or start from the blank review.")));
+      return;
+    }
+    const fid = FIDELITY[t.fidelity] || FIDELITY.generic;
+    previewEl.replaceChildren(
+      h("div", { class: "chips" }, h("span", { class: "chip kind-" + t.kind }, t.custom ? "My map" : KIND_LABEL[t.kind]), t.year && h("span", { class: "chip" }, String(t.year)),
+        t.overrides && h("span", { class: "chip warn" }, "replaces the bundled one")),
+      h("h3", {}, t.label),
+      t.error ? h("p", { class: "err" }, "This map has an error: " + t.error) : h("p", { class: "tpl-desc" }, t.description || "No description."),
+      !t.error && h("div", { class: "stats" }, h("span", {}, h("b", {}, String(t.fields)), " fields"), h("span", {}, h("b", {}, String(t.required)), " required")),
+      h("div", { class: "fid " + fid.cls, title: fid.tip }, h("span", { class: "dot-fid " + fid.cls }), fid.text),
+      h("div", { class: "tpl-links" }, t.source && h("a", { href: t.source, target: "_blank", rel: "noopener noreferrer" }, "Venue guidelines ↗"),
+        t.custom && h("button", { class: "linkbtn danger", onclick: async () => {
+          if (!confirm(`Remove "${t.label}" from your maps? Reviews already created from it keep their own copy.`)) return;
+          try { await api("DELETE", `/api/templates/${t.id}`); await reloadTemplates(); } catch (e) { alert(e.message); }
+        } }, "Remove my map")));
+  }
+  async function start() {
+    const t = picker.current; if (!t || t.error) return;
+    startBtn.disabled = true;
+    try {
+      const title = titleIn.value.trim();
+      const r = await api("POST", "/api/reviews", { template: t.id, title });
+      if (title) await api("PUT", `/api/reviews/${r.id}`, { valuesPatch: { paper_title: title } });
+      try { localStorage.setItem("rw.template", t.id); } catch {}
+      location.hash = `#/review/${r.id}`;
+    } catch (e) { alert("Could not start the review: " + e.message); startBtn.disabled = false; }
+  }
+
+  const newCard = h("section", { class: "panel new-panel" },
+    h("div", { class: "panel-head" }, h("h2", {}, "Start a new review"), h("p", { class: "muted" }, "Pick the form of the venue you are reviewing for. Every review keeps its own copy, so you can reshape it later.")),
+    h("div", { class: "new-grid" },
+      h("div", { class: "new-form" },
+        h("label", { class: "field-label" }, "Review form"), pickerHost,
+        h("label", { class: "field-label" }, "Paper"), titleIn,
+        h("div", { class: "row" }, startBtn, h("button", { class: "btn-ghost", onclick: () => mapIn.click(), title: "Add a form of your own to this list" }, "Add my own map…"), mapIn)),
+      previewEl));
+  renderPreview(picker.current);
+
+  /* --- restore --- */
   const fileIn = h("input", { type: "file", accept: ".zip,.json,application/zip,application/json", style: "display:none", onchange: async e => {
     const f = e.target.files[0]; if (!f) return;
     try {
@@ -115,29 +260,50 @@ async function showHome(token) {
     } catch (err) { alert("Could not restore: " + err.message); }
     e.target.value = "";
   } });
-  $app.replaceChildren(h("div", { class: "home" },
-    h("h1", {}, "Review Workbench"),
-    h("p", { class: "sub" }, "Each review is a folder holding your answers, its own map and the paper PDF. Back it up with the .zip button."),
-    h("h2", {}, "New review"),
-    h("div", { class: "card" },
-      h("div", { class: "grow" }, h("b", {}, info.defaultMapLabel), h("div", { class: "meta" }, "default map (you can replace it per review later)")),
-      h("button", { class: "primary", onclick: async () => {
-        const r = await api("POST", "/api/reviews", {});
-        location.hash = `#/review/${r.id}`;
-      } }, "Start review")),
-    h("div", { class: "row" }, h("h2", { style: "flex:1" }, "Saved reviews"),
-      h("button", { onclick: () => fileIn.click() }, "Restore from backup (.zip or .json)"), fileIn),
-    reviews.length === 0 && h("p", { class: "sub" }, "Nothing yet."),
-    ...reviews.map(r => h("div", { class: "card" },
-      h("div", { class: "grow" }, h("b", {}, r.title || "Untitled review"),
-        h("div", { class: "meta" }, `updated ${fmtDate(r.updated)}${r.paperFile ? " · " + r.paperFile : ""}`)),
-      h("button", { class: "primary", onclick: () => location.hash = `#/review/${r.id}` }, "Open"),
-      h("a", { class: "btnlink", href: `/api/reviews/${r.id}/backup.zip`, download: "" }, "Backup (.zip)"),
-      h("button", { class: "danger", onclick: async () => {
-        if (!confirm(`Delete "${r.title}" with its map and PDF? This cannot be undone.`)) return;
-        await api("DELETE", `/api/reviews/${r.id}`); pdfDel(r.id); showHome(navToken);
-      } }, "Delete")))
-  ));
+
+  /* --- saved reviews --- */
+  const gridEl = h("div", { class: "rgrid" });
+  const countEl = h("span", { class: "count" }, String(reviews.length));
+  const isComplete = r => r.progress && r.progress.required > 0 && r.progress.filled >= r.progress.required;
+  function renderReviews() {
+    const q = query.trim().toLowerCase();
+    const shown = reviews.filter(r => (filter === "all" || (filter === "done" ? isComplete(r) : !isComplete(r)))
+      && (!q || [r.title, r.mapLabel, r.paperFile].join(" ").toLowerCase().includes(q)));
+    gridEl.replaceChildren(...(shown.length ? shown.map(r => {
+      const p = r.progress, pct = p && p.required ? Math.min(100, Math.round(100 * p.filled / p.required)) : 0, done = isComplete(r);
+      return h("article", { class: "rcard" + (done ? " done" : "") },
+        h("div", { class: "rcard-top" }, h("h3", { class: "rtitle", onclick: () => location.hash = `#/review/${r.id}`, title: "Open" }, r.title || "Untitled review"),
+          r.mapLabel && h("span", { class: "chip subtle", title: r.mapLabel }, r.mapLabel.replace(/ - .*$/, ""))),
+        h("div", { class: "rmeta" }, `Updated ${ago(r.updated)}`, r.hasPdf && h("span", { class: "chip pdf", title: r.paperFile || "PDF attached" }, "PDF")),
+        p ? h("div", { class: "prog" }, h("div", { class: "bar" }, h("div", { class: "fill", style: `width:${pct}%` })),
+              h("span", { class: "prog-text" }, done ? "Complete ✓" : `${p.filled} of ${p.required} required`))
+          : h("div", { class: "prog" }, h("span", { class: "err" }, "map cannot be read")),
+        h("div", { class: "ractions" },
+          h("button", { class: "btn-primary", onclick: () => location.hash = `#/review/${r.id}` }, "Open"),
+          h("a", { class: "btnlink", href: `/api/reviews/${r.id}/backup.zip`, download: "", title: "Download the whole review folder as a zip" }, "Backup"),
+          h("button", { class: "btn-ghost danger", onclick: async () => {
+            if (!confirm(`Delete "${r.title}" with its map and PDF? This cannot be undone.`)) return;
+            await api("DELETE", `/api/reviews/${r.id}`); pdfDel(r.id); showHome(navToken);
+          } }, "Delete")));
+    }) : [h("div", { class: "empty" }, reviews.length ? h("p", {}, "No review matches.") : [h("div", { class: "empty-icon", "aria-hidden": "true" }, "📄"),
+        h("p", {}, h("b", {}, "No reviews yet.")), h("p", { class: "muted" }, "Pick a form above and press Start review. Your reviews appear here and are saved automatically.")])]));
+  }
+  const tab = (key, text) => h("button", { class: "tab" + (filter === key ? " on" : ""), onclick: e => {
+    filter = key; e.currentTarget.parentElement.querySelectorAll(".tab").forEach(b => b.classList.remove("on")); e.currentTarget.classList.add("on"); renderReviews();
+  } }, text);
+  const reviewsCard = h("section", { class: "panel" },
+    h("div", { class: "revhead" }, h("h2", {}, "Your reviews ", countEl),
+      reviews.length > 0 && h("div", { class: "tabs2" }, tab("all", "All"), tab("todo", "In progress"), tab("done", "Complete")),
+      reviews.length > 0 && h("input", { type: "search", class: "text-in rsearch", placeholder: "Search your reviews", "aria-label": "Search your reviews", oninput: e => { query = e.target.value; renderReviews(); } })),
+    gridEl);
+  renderReviews();
+
+  $app.replaceChildren(h("div", { class: "home2" },
+    h("header", { class: "hero" },
+      h("div", { class: "brand" }, h("img", { src: "/favicon.svg", alt: "", width: 44, height: 44 }),
+        h("div", {}, h("h1", {}, "Review Workbench"), h("p", { class: "muted" }, "Write peer reviews with the paper beside you."))),
+      h("div", { class: "hero-actions" }, h("button", { class: "btn-ghost", onclick: () => fileIn.click(), title: "Import a review from a backup .zip" }, "Restore from backup"), fileIn)),
+    newCard, reviewsCard));
 }
 
 /* ---------- review ---------- */
@@ -179,12 +345,13 @@ async function showReview(id, token) {
   catch (e) { if (token !== navToken) return; $app.replaceChildren(h("div", { class: "home" }, h("p", { class: "err" }, "Review not found."), h("a", { href: "#/" }, "Back"))); return; }
   if (token !== navToken) return;
   let map;
+  const templates = await api("GET", "/api/templates").catch(() => []);
   try { map = await api("GET", `/api/reviews/${id}/map`); }
   catch (e) {
     if (token !== navToken) return;
     $app.replaceChildren(h("div", { class: "home" }, h("p", { class: "err" }, "This review's map cannot be loaded: " + e.message),
       h("div", { class: "row" },
-        h("button", { class: "primary", onclick: async () => { await api("DELETE", `/api/reviews/${id}/map`); route(); } }, "Reset to the default map"),
+        h("button", { class: "primary", onclick: async () => { await api("DELETE", `/api/reviews/${id}/map`); route(); } }, "Reset to its template"),
         h("a", { href: "#/" }, "Back"))));
     return;
   }
@@ -359,14 +526,27 @@ async function showReview(id, token) {
     try { await flush(); await apiRaw("PUT", `/api/reviews/${id}/map`, await f.text(), "text/plain"); route(); }
     catch (err) { alert("Map not replaced: " + err.message); }
   } });
-  const mapMenu = h("details", { class: "menu" }, h("summary", {}, "Map"),
+  const tplSelect = h("select", { class: "menu-select", "aria-label": "Switch to another review form" },
+    ...groupTemplates(templates).map(([name, items]) => h("optgroup", { label: name }, ...items.filter(t => !t.error).map(t => h("option", { value: t.id }, t.label)))));
+  tplSelect.value = review.template && templates.some(t => t.id === review.template) ? review.template : "";
+  const baseTpl = templates.find(t => t.id === review.template);
+  const mapMenu = h("details", { class: "menu" }, h("summary", {}, "Form"),
     h("div", { class: "menubox" },
-      h("button", { onclick: () => mapIn.click() }, "Upload a map…"),
+      h("div", { class: "menu-head" }, "Based on", h("b", {}, baseTpl ? baseTpl.label : (map.attrs.label || "a custom map"))),
+      h("label", { class: "menu-label" }, "Switch to another form"),
+      tplSelect,
+      h("button", { onclick: async () => {
+        if (!tplSelect.value || tplSelect.value === review.template) return;
+        if (!confirm("Switch this review to the selected form? Your answers are kept where the field ids match (for example summary, strengths, weaknesses).")) return;
+        try { await flush(); await api("POST", `/api/reviews/${id}/template`, { template: tplSelect.value }); route(); } catch (err) { alert(err.message); }
+      } }, "Use this form"),
+      h("hr", {}),
+      h("button", { onclick: () => mapIn.click() }, "Upload a map file…"),
       h("a", { class: "btnlink", href: `/api/reviews/${id}/map.map`, download: "review.map" }, "Download this map"),
       h("button", { onclick: async () => {
-        if (!confirm("Go back to the default map? Your answers are kept.")) return;
+        if (!confirm(`Reset the map of this review to "${baseTpl ? baseTpl.label : "its template"}"? Your answers are kept.`)) return;
         try { await flush(); await api("DELETE", `/api/reviews/${id}/map`); route(); } catch (err) { alert(err.message); }
-      } }, "Reset to default map")), mapIn);
+      } }, baseTpl ? `Reset to “${baseTpl.label}”` : "Reset to its template")), mapIn);
   const topbar = h("div", { class: "topbar" },
     h("a", { href: "#/", onclick: async e => { await flush(); } }, "← Home"),
     titleIn, h("span", { class: "meta", style: "color:var(--muted);font-size:13px" }, map.attrs.venue || map.attrs.label || ""),

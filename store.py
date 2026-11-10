@@ -1,10 +1,11 @@
-"""On-disk storage for reviews. No HTTP in here.
+"""On-disk storage for reviews and map templates. No HTTP in here.
 
 Layout under data_dir:
-    default.map                     the default map (seeded from the bundled copy if missing)
-    reviews/<id>/review.json        answers, annotations, PDF position
-    reviews/<id>/map.map            this review's own map
+    maps/<id>.map                   your own map templates (shown next to the bundled ones; same id overrides)
+    reviews/<id>/review.json        answers, annotations, PDF position, which template it came from
+    reviews/<id>/map.map            this review's own copy of its map
     reviews/<id>/paper.pdf          the paper (optional)
+The bundled templates live in a read-only folder next to the code (bundled_dir).
 """
 import io
 import json
@@ -22,6 +23,7 @@ import mapparser
 ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,80}$")
 SAVABLE = ("title", "values", "paperFile", "annotations", "pdfState")
 ZIP_MEMBERS = {"review.json", "map.map", "paper.pdf"}
+KIND_ORDER = {"conference": 0, "journal": 1, "general": 2}
 
 
 def _atomic_write(path: Path, data: bytes) -> None:
@@ -37,18 +39,35 @@ def _atomic_write(path: Path, data: bytes) -> None:
         raise
 
 
+def _fields(node, inherited_private=False):
+    """Yield (field_node, is_private) for every input widget under node."""
+    private = inherited_private or bool(node["attrs"].get("private"))
+    if node["type"] in mapparser.FIELD_TYPES:
+        yield node, private
+    if node["type"] != "Choice":
+        for child in node["children"]:
+            yield from _fields(child, private)
+
+
+def _is_filled(value) -> bool:
+    return value is not None and str(value).strip() != ""
+
+
 class Store:
     MAX_PDF = 100 * 1024 * 1024
     MAX_MAP = 1024 * 1024
     MAX_JSON = 20 * 1024 * 1024
+    DEFAULT_TEMPLATE = "blank"          # used when a review is created without choosing one
+    LEGACY_TEMPLATE = "aamas-2027"      # what old single-file reviews and old exports were written against
 
-    def __init__(self, data_dir, default_map_src):
+    def __init__(self, data_dir, bundled_dir):
         self.data = Path(data_dir)
+        self.bundled = Path(bundled_dir)
         self.reviews = self.data / "reviews"
+        self.custom = self.data / "maps"
         self.reviews.mkdir(parents=True, exist_ok=True)
-        self.default_map = self.data / "default.map"
-        if not self.default_map.exists():
-            shutil.copyfile(default_map_src, self.default_map)
+        self.custom.mkdir(parents=True, exist_ok=True)
+        self._meta_cache = {}
 
     # ---------- helpers ----------
     def _dir(self, rid) -> Path:
@@ -79,18 +98,88 @@ class Store:
         if not data.startswith(b"%PDF-"):
             raise ValueError("not a PDF file")
 
-    # ---------- reviews ----------
-    def default_map_text(self) -> str:
-        return self.default_map.read_text(encoding="utf-8")
+    @staticmethod
+    def _check_id(tid) -> str:
+        if not isinstance(tid, str) or not ID_RE.match(tid):
+            raise ValueError("invalid template id")
+        return tid
 
-    def create(self, title: str = "") -> dict:
+    # ---------- templates ----------
+    def _template_path(self, tid):
+        """(path, is_custom) of the template file; your own file wins over a bundled one with the same id."""
+        self._check_id(tid)
+        c = self.custom / f"{tid}.map"
+        if c.is_file():
+            return c, True
+        b = self.bundled / f"{tid}.map"
+        if b.is_file():
+            return b, False
+        raise FileNotFoundError(tid)
+
+    def template_text(self, tid) -> str:
+        return self._template_path(tid)[0].read_text(encoding="utf-8")
+
+    def _summary(self, path: Path) -> dict:
+        st = path.stat()
+        key = (str(path), st.st_mtime_ns, st.st_size)
+        if key not in self._meta_cache:
+            try:
+                tree = mapparser.parse(path.read_text(encoding="utf-8"))
+                a = tree["attrs"]
+                fields = list(_fields(tree))
+                kind = a.get("kind") if a.get("kind") in KIND_ORDER else "general"
+                meta = {"label": str(a.get("label") or path.stem), "venue": str(a.get("venue") or ""), "kind": kind,
+                        "year": a.get("year") if isinstance(a.get("year"), int) else None,
+                        "fidelity": str(a.get("fidelity") or "generic"), "description": str(a.get("description") or ""),
+                        "source": str(a.get("source") or ""),
+                        "fields": sum(1 for _, private in fields if not private),
+                        "required": sum(1 for n, _ in fields if n["attrs"].get("required"))}
+            except (mapparser.MapError, UnicodeDecodeError) as e:
+                meta = {"label": path.stem, "venue": "", "kind": "general", "year": None, "fidelity": "generic",
+                        "description": "", "source": "", "fields": 0, "required": 0, "error": str(e)}
+            self._meta_cache[key] = meta
+        return dict(self._meta_cache[key])
+
+    def templates(self) -> list:
+        ids = {p.stem for p in self.bundled.glob("*.map")} | {p.stem for p in self.custom.glob("*.map")}
+        out = []
+        for tid in ids:
+            if not ID_RE.match(tid):
+                continue
+            path, custom = self._template_path(tid)
+            meta = self._summary(path)
+            meta.update(id=tid, custom=custom, overrides=custom and (self.bundled / f"{tid}.map").is_file())
+            out.append(meta)
+        return sorted(out, key=lambda t: (t["custom"] is False, KIND_ORDER[t["kind"]], t["label"].lower()))
+
+    def set_custom_template(self, tid, text: str) -> None:
+        self._check_id(tid)
+        self._check_map(text)
+        _atomic_write(self.custom / f"{tid}.map", text.encode())
+
+    def delete_custom_template(self, tid) -> None:
+        self._check_id(tid)
+        p = self.custom / f"{tid}.map"
+        if not p.is_file():
+            raise FileNotFoundError(tid)
+        p.unlink()
+
+    # ---------- reviews ----------
+    def create(self, title: str = "", template=None) -> dict:
+        tid = template or self.DEFAULT_TEMPLATE
+        text = self.template_text(tid)  # resolve (and validate) before any folder exists
+        self._check_map(text)
         rid, d = self._new_dir()
-        now = time.time()
-        review = {"id": rid, "title": title or "Untitled review", "created": now, "updated": now,
-                  "paperFile": None, "values": {}, "annotations": []}
-        shutil.copyfile(self.default_map, d / "map.map")
-        self._write_json(d, review)
-        return review
+        try:
+            now = time.time()
+            review = {"id": rid, "title": title or "Untitled review", "template": tid, "created": now, "updated": now,
+                      "paperFile": None, "values": {}, "annotations": []}
+            _atomic_write(d / "map.map", text.encode())
+            self._write_json(d, review)
+            return review
+        except BaseException:
+            shutil.rmtree(d, ignore_errors=True)
+            raise
 
     def get(self, rid) -> dict:
         d = self._dir(rid)
@@ -121,18 +210,30 @@ class Store:
     def delete(self, rid) -> None:
         shutil.rmtree(self._dir(rid))
 
+    def _progress(self, d: Path, review: dict):
+        try:
+            tree = mapparser.parse((d / "map.map").read_text(encoding="utf-8"))
+        except Exception:
+            return None, None
+        values = review.get("values") if isinstance(review.get("values"), dict) else {}
+        required = [n["attrs"]["id"] for n, _ in _fields(tree) if n["attrs"].get("required")]
+        filled = sum(1 for i in required if _is_filled(values.get(i)))
+        return {"filled": filled, "required": len(required)}, str(tree["attrs"].get("label") or "")
+
     def list(self) -> list:
         out = []
         for d in self.reviews.iterdir():
             try:
                 r = json.loads((d / "review.json").read_text(encoding="utf-8"))
-                out.append({"id": d.name, "title": r.get("title"), "created": r.get("created"),
-                            "updated": r.get("updated"), "paperFile": r.get("paperFile")})
+                progress, label = self._progress(d, r)
+                out.append({"id": d.name, "title": r.get("title"), "created": r.get("created"), "updated": r.get("updated"),
+                            "paperFile": r.get("paperFile"), "template": r.get("template"), "mapLabel": label,
+                            "progress": progress, "hasPdf": (d / "paper.pdf").is_file()})
             except Exception:
                 continue
         return sorted(out, key=lambda r: r.get("updated") or 0, reverse=True)
 
-    # ---------- map ----------
+    # ---------- map of one review ----------
     def map_text(self, rid) -> str:
         return (self._dir(rid) / "map.map").read_text(encoding="utf-8")
 
@@ -141,9 +242,29 @@ class Store:
         self._check_map(text)
         _atomic_write(d / "map.map", text.encode())
 
-    def reset_map(self, rid) -> None:
+    def set_template(self, rid, tid) -> None:
+        """Replace the review's map with a template's. Answers are kept (fields are matched by id)."""
         d = self._dir(rid)
-        _atomic_write(d / "map.map", self.default_map.read_bytes())
+        text = self.template_text(tid)
+        self._check_map(text)
+        review = self.get(rid)
+        _atomic_write(d / "map.map", text.encode())
+        review["template"] = tid
+        review["updated"] = time.time()
+        self._write_json(d, review)
+
+    def reset_map(self, rid) -> None:
+        """Back to the template the review was created from (old reviews fall back to the legacy template)."""
+        tid = self.get(rid).get("template")
+        try:
+            self.template_text(tid)
+        except (ValueError, FileNotFoundError):
+            tid = self.LEGACY_TEMPLATE
+            try:
+                self.template_text(tid)
+            except FileNotFoundError:
+                tid = self.DEFAULT_TEMPLATE
+        self.set_template(rid, tid)
 
     # ---------- pdf ----------
     def pdf_path(self, rid):
@@ -197,7 +318,7 @@ class Store:
         review = json.loads(read("review.json").decode("utf-8"))
         if not isinstance(review, dict) or not isinstance(review.get("values"), dict):
             raise ValueError("review.json is not a review")
-        map_text = read("map.map").decode("utf-8") if "map.map" in names else self.default_map_text()
+        map_text = read("map.map").decode("utf-8") if "map.map" in names else self._fallback_map(review)
         self._check_map(map_text)
         pdf = read("paper.pdf") if "paper.pdf" in names else None
         if pdf is not None:
@@ -207,13 +328,22 @@ class Store:
     def import_review_json(self, obj: dict) -> dict:
         if not isinstance(obj, dict) or not isinstance(obj.get("values"), dict):
             raise ValueError("not a review file: missing 'values'")
-        return self._materialise(obj, self.default_map_text(), None)
+        return self._materialise(obj, self._fallback_map(obj), None)
+
+    def _fallback_map(self, review: dict) -> str:
+        tid = review.get("template")
+        try:
+            return self.template_text(tid)
+        except (ValueError, FileNotFoundError):
+            return self.template_text(self.LEGACY_TEMPLATE)
 
     def _materialise(self, review: dict, map_text: str, pdf, drop_paper_name=False) -> dict:
         rid, d = self._new_dir(review.get("id"))
         try:
             now = time.time()
+            tid = review.get("template")
             out = {"id": rid, "title": review.get("title") or "Imported review",
+                   "template": tid if isinstance(tid, str) and ID_RE.match(tid) else self.LEGACY_TEMPLATE,
                    "created": review.get("created") or now, "updated": now,
                    "paperFile": None if drop_paper_name else review.get("paperFile"),
                    "values": review["values"], "annotations": review.get("annotations") or [],
@@ -241,7 +371,8 @@ class Store:
                     continue
                 if not isinstance(r.get("values"), dict):
                     continue
-                self._materialise(r, self.default_map_text(), None)
+                r = dict(r, template=self.LEGACY_TEMPLATE)
+                self._materialise(r, self.template_text(self.LEGACY_TEMPLATE), None)
                 migrated.append(rid)
             except Exception:
                 continue
