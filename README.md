@@ -240,6 +240,9 @@ divider to resize).
 
 ### The PDF pane
 
+On phones and on tablets held upright there is no room beside the form, so the PDF pane (and its buttons) is not
+offered there. Turn the tablet sideways or use a computer to read the paper next to the form.
+
 1. **Open the paper beside the form.** A blue tab on the right edge of the screen says **Open the PDF here**; click it
    and a side panel opens with a **Select PDF…** button (the **Open PDF…** button in the top bar does the same).
    You can also **drag a PDF file anywhere onto the page**. The PDF is uploaded to *your* server and stored in the

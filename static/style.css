@@ -90,7 +90,6 @@ details.help .body ul { margin: 4px 0; padding-left: 20px; }
 .info b { display: block; margin-bottom: 4px; white-space: normal; }
 .check { display: flex; gap: 8px; align-items: flex-start; }
 .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 8px 16px; border-radius: 8px; font-size: 14px; z-index: 10; }
-@media (max-width: 800px) { .split { flex-direction: column; } .splitter { display: none !important; } .review.show-pane .pdfpane { min-height: 50vh; } }
 
 /* ---------- PDF viewer pane ---------- */
 .pdfpane { overflow: hidden; position: relative; }
@@ -275,7 +274,6 @@ body.dragging .pdfcontainer { pointer-events: none; }
 .drop-overlay[hidden] { display: none; }
 .drop-overlay > div { background: var(--accent); padding: 26px 40px; border-radius: 18px; box-shadow: 0 10px 40px rgba(0,0,0,.35); border: 3px dashed rgba(255,255,255,.7); }
 .drop-overlay .empty-icon { font-size: 44px; }
-@media (max-width: 800px) { .pdf-tab { padding: 12px 8px; } }
 
 /* sticky notes on the page */
 .ann-note { pointer-events: auto; cursor: pointer; display: flex; align-items: center; justify-content: center; background: var(--c); color: rgba(0,0,0,.62);
@@ -298,3 +296,9 @@ body.dragging .pdfcontainer { pointer-events: none; }
 .usermenu { display: inline-flex; align-items: center; gap: 6px; }
 .usermenu .who { font-size: 13px; color: var(--muted); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hero-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* Phones and tablets held upright: there is no room beside the form, so the PDF pane is not offered at all. */
+@media (max-width: 900px), (orientation: portrait) and (max-width: 1100px) {
+  .pdfpane, .splitter, .pdf-tab, .drop-overlay, .pdf-only { display: none !important; }
+  .formpane { flex: 1 1 100%; min-width: 0; padding: 14px 14px 100px; }
+}

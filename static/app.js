@@ -446,7 +446,7 @@ async function showReview(id, token) {
     catch (e) { alert("Could not open the PDF: " + e.message); viewer.close(); root.classList.remove("has-pdf"); setPane(true); }
     return true; // stored on the server (or already was)
   };
-  const pdfBtn = h("button", { onclick: () => pdfInput.click(), title: "Choose the paper's PDF to read beside the form" }, "Open PDF…");
+  const pdfBtn = h("button", { class: "pdf-only", onclick: () => pdfInput.click(), title: "Choose the paper's PDF to read beside the form" }, "Open PDF…");
 
   /* the side panel: an edge tab to open it, an inviting empty state, and drag-and-drop */
   const pdfTab = h("button", { class: "pdf-tab", onclick: () => setPane(true), "aria-label": "Open the PDF panel" });
