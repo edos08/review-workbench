@@ -50,7 +50,7 @@ Save this as `compose.yaml` in an empty folder (it is also the `compose.yaml` of
     # Portainer, or a local .env file). See .env.example and the README for what each one does.
     services:
       review-workbench:
-        image: ${IMAGE_NAME:-ghcr.io/edos08/review-workbench:latest}
+        image: ghcr.io/edos08/review-workbench:latest
         container_name: ${CONTAINER_NAME:-review-workbench}
         restart: ${RESTART_POLICY:-unless-stopped}
         ports:
@@ -100,8 +100,9 @@ Needs Python 3.11 or newer. Nothing to install.
     python3 server.py                # http://127.0.0.1:8000, data in ./data
     PORT=9000 DATA_DIR=~/reviews python3 server.py
 
-**Pin a version** for a server you rely on: set `IMAGE_NAME=ghcr.io/edos08/review-workbench:1.0.0` (release tags
-are published as `X.Y.Z` and `X.Y`; `latest` follows the `main` branch).
+**Pin a version** for a server you rely on: change the tag in the `image:` line of `compose.yaml` from `latest` to a release
+(for example `ghcr.io/edos08/review-workbench:1.0.0`). Release tags are published as `X.Y.Z` and `X.Y`; `latest` follows the
+`main` branch.
 
 ---
 
@@ -120,7 +121,6 @@ reads the second.
 | `PUID` / `PGID` | `1000` / `1000` | User and group id the app runs as. Set them to your own host user (`id -u`, `id -g`) and every file in `DATA_PATH` belongs to you, so you can read, copy and delete backups without `sudo`. |
 | `MAX_PDF_MB` | `100` | Largest PDF you can attach, in megabytes. |
 | `CONTAINER_NAME` | `review-workbench` | Container name. |
-| `IMAGE_NAME` | `ghcr.io/edos08/review-workbench:latest` | Image to run. Pin a release, e.g. `ghcr.io/edos08/review-workbench:1.0.0`. |
 | `RESTART_POLICY` | `unless-stopped` | Docker restart policy. |
 
 **App settings (read by `server.py`, also usable without Docker)**
@@ -177,7 +177,6 @@ settings*, and set the visibility to Public). A public image needs no login.
 | `BIND_ADDRESS` | `0.0.0.0` | Only if you want to open the app from another computer. The default `127.0.0.1` is reachable from the server only. |
 | `HOST_PORT` | `8000` | Change if the port is taken. |
 | `PUID`, `PGID` | `1000`, `1000` | Your user on the server (`id -u`, `id -g`), so you can read and back up the data folder. |
-| `IMAGE_NAME` | `ghcr.io/edos08/review-workbench:1.0.0` | Optional: pin a version instead of following `latest`. |
 
 ### Updating
 
@@ -396,7 +395,7 @@ Everything is under one folder (`DATA_PATH` on the host, `/data` in the containe
 |---|---|
 | Container restarts, log says `Permission denied` on the data folder | Should not happen: the entrypoint fixes ownership of the data folder at start. Check that `PUID`/`PGID` are numbers and that the host filesystem allows `chown` (some network shares do not). |
 | Page does not open from another computer | `BIND_ADDRESS` is `127.0.0.1` (the default). Set `0.0.0.0` and redeploy, and check the firewall. |
-| `pull access denied` / `unauthorized` when pulling the image | The package is private or `IMAGE_NAME` has a typo. Set the package to Public on GitHub (Packages, *Package settings*), or log in with `docker login ghcr.io`. |
+| `pull access denied` / `unauthorized` when pulling the image | The package is private, or the `image:` name in `compose.yaml` has a typo. Set the package to Public on GitHub (Packages, *Package settings*), or log in with `docker login ghcr.io`. |
 | `Could not upload the PDF: upload too large` | Raise `MAX_PDF_MB`. |
 | `Could not upload the PDF: not a PDF file` | The file does not start with `%PDF-`. |
 | `Map not replaced: map error: ...` | The uploaded map has a syntax error, usually reported with its line number. The review keeps its old map. |

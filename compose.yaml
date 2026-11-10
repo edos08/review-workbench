@@ -3,7 +3,7 @@
 # Portainer, or a local .env file). See .env.example and the README for what each one does.
 services:
   review-workbench:
-    image: ${IMAGE_NAME:-ghcr.io/edos08/review-workbench:latest}
+    image: ghcr.io/edos08/review-workbench:latest
     container_name: ${CONTAINER_NAME:-review-workbench}
     restart: ${RESTART_POLICY:-unless-stopped}
     ports:
