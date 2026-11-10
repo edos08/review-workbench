@@ -38,19 +38,60 @@ submissions) in a browser instead of a Word file or a web form you cannot save.
 
 ## Quick start
 
-### With Docker
+The image is published at `ghcr.io/edos08/review-workbench` (Linux `amd64` and `arm64`, so it also runs on a
+Raspberry Pi or an ARM NAS). You do not need to clone or build anything.
+
+### With Docker Compose (recommended)
+
+Save this as `compose.yaml` in an empty folder (it is also the `compose.yaml` of this repository):
+
+    # Review Workbench. Every setting is an environment variable with a default, so it can be
+    # configured without editing this file (e.g. in the environment-variables panel of Dockhand,
+    # Portainer, or a local .env file). See .env.example and the README for what each one does.
+    services:
+      review-workbench:
+        image: ${IMAGE_NAME:-ghcr.io/edos08/review-workbench:latest}
+        container_name: ${CONTAINER_NAME:-review-workbench}
+        restart: ${RESTART_POLICY:-unless-stopped}
+        ports:
+          # Default 127.0.0.1: reachable only from the server itself, because the app has no login.
+          # Set BIND_ADDRESS=0.0.0.0 to reach it from your network.
+          - "${BIND_ADDRESS:-127.0.0.1}:${HOST_PORT:-8000}:8000"
+        environment:
+          PUID: ${PUID:-1000}
+          PGID: ${PGID:-1000}
+          MAX_PDF_MB: ${MAX_PDF_MB:-100}
+        volumes:
+          # A normal folder on the host (a bind mount, not a Docker-managed volume), so you can open,
+          # copy and back it up directly. On a server use an ABSOLUTE path, e.g. /srv/review-workbench/data.
+          - ${DATA_PATH:-./data}:/data
+
+Then start it:
+
+    docker compose up -d
+
+Open <http://localhost:8000>. Your data appears in `./data/` next to the file.
+
+Every setting is an environment variable with a default. Put overrides in a `.env` file next to `compose.yaml`
+(start from [`.env.example`](.env.example)) or pass them inline:
+
+    HOST_PORT=9000 DATA_PATH=/srv/reviews PUID=$(id -u) PGID=$(id -g) docker compose up -d
+
+See [Configuration](#configuration) for all of them.
+
+### With a single `docker run`
+
+    docker run -d --name review-workbench --restart unless-stopped \
+      -p 127.0.0.1:8000:8000 \
+      -e PUID=$(id -u) -e PGID=$(id -g) \
+      -v "$HOME/review-workbench-data:/data" \
+      ghcr.io/edos08/review-workbench:latest
+
+### Build from source instead
 
     git clone https://github.com/edos08/review-workbench.git
     cd review-workbench
-    docker compose up -d --build
-
-Open <http://localhost:8000>. Your data appears in `./data/` next to `compose.yaml`.
-
-Change anything (port, data folder, ...) with environment variables, either inline
-
-    HOST_PORT=9000 DATA_PATH=/srv/reviews docker compose up -d --build
-
-or by copying `.env.example` to `.env` and editing it. See [Configuration](#configuration).
+    docker compose -f compose.yaml -f compose.build.yaml up -d --build
 
 ### Without Docker
 
@@ -58,6 +99,9 @@ Needs Python 3.11 or newer. Nothing to install.
 
     python3 server.py                # http://127.0.0.1:8000, data in ./data
     PORT=9000 DATA_DIR=~/reviews python3 server.py
+
+**Pin a version** for a server you rely on: set `IMAGE_NAME=ghcr.io/edos08/review-workbench:1.0.0` (release tags
+are published as `X.Y.Z` and `X.Y`; `latest` follows the `main` branch).
 
 ---
 
@@ -76,7 +120,7 @@ reads the second.
 | `PUID` / `PGID` | `1000` / `1000` | User and group id the app runs as. Set them to your own host user (`id -u`, `id -g`) and every file in `DATA_PATH` belongs to you, so you can read, copy and delete backups without `sudo`. |
 | `MAX_PDF_MB` | `100` | Largest PDF you can attach, in megabytes. |
 | `CONTAINER_NAME` | `review-workbench` | Container name. |
-| `IMAGE_NAME` | `review-workbench:latest` | Name of the image that gets built. |
+| `IMAGE_NAME` | `ghcr.io/edos08/review-workbench:latest` | Image to run. Pin a release, e.g. `ghcr.io/edos08/review-workbench:1.0.0`. |
 | `RESTART_POLICY` | `unless-stopped` | Docker restart policy. |
 
 **App settings (read by `server.py`, also usable without Docker)**
@@ -93,35 +137,55 @@ Invalid values (for example `MAX_PDF_MB=abc`, `PUID=abc`) stop the container at 
 
 ---
 
-## Deploying with Dockhand (or any Git-based container manager)
+## Deploying with Dockhand (or any container manager)
 
-Container managers that deploy from a Git repository usually do not let you edit `compose.yaml`, only set
-environment variables. That is why every setting above is a variable with a sensible default.
+Because the image is published, a manager only needs the compose file and a few environment variables; nothing is
+built on your server. The steps below follow the [Dockhand manual](https://dockhand.pro/manual/); menu and button
+names can differ between versions.
 
-The menu names differ between tools and versions; the idea is the same:
+**Before you start:** the image package must be **public** on GitHub Container Registry, otherwise the pull fails
+with an authorization error (for your own fork: after the first publish, open the package on GitHub, *Package
+settings*, and set the visibility to Public). A public image needs no login.
 
-1. **Create a stack from a Git repository.**
-   - Repository URL: `https://github.com/edos08/review-workbench`
-   - Branch: `main`
-   - Compose file: `compose.yaml`
-2. **Add environment variables** in the stack's environment section. Typically:
+### Option A: paste the compose file as a normal stack (simplest)
 
-   | Variable | Example | Why |
-   |---|---|---|
-   | `DATA_PATH` | `/srv/review-workbench/data` | Absolute folder on the server. Keep it **outside** the checkout so redeploys never touch it. Docker creates it if it does not exist. |
-   | `BIND_ADDRESS` | `0.0.0.0` | Only if you want to open the app from another computer on your network. |
-   | `HOST_PORT` | `8000` | Change if the port is taken. |
-   | `PUID`, `PGID` | `1000`, `1000` | Your user on the server, so you can read the backup folder. Find them with `id`. |
+1. In Dockhand open **Stacks** and click **Create stack**; the YAML editor opens.
+2. Name the stack and paste the contents of [`compose.yaml`](compose.yaml).
+3. In the **environment variables** panel on the right add your settings (see the table below).
+4. Click **Create & start** (or **Create**, then deploy).
+5. Open `http://<server>:<HOST_PORT>`.
 
-3. **Deploy.** The image is built from the repository (`build: .` in `compose.yaml`). Open
-   `http://<server>:<HOST_PORT>`.
-4. **Update later** by pulling and redeploying the stack from the manager. Your data stays in `DATA_PATH`.
+### Option B: a Git stack that tracks this repository
 
-If your manager cannot build images from a Git context, build the image once on the server
-(`docker build -t review-workbench:latest .`) and deploy the stack without a build step.
+1. Create a stack from a Git repository with
+   - **Repository:** `https://github.com/edos08/review-workbench` (public, no credentials needed)
+   - **Branch:** `main`
+   - **Compose file path:** `compose.yaml` (Dockhand's default is `docker-compose.yml`, so change it)
+   - **Build images on deploy:** leave off, the image is pulled, not built
+2. Add the environment variables in the stack's variables panel. The manual says values set there are available to
+   `${VAR}` substitution in the compose file, which is how this project reads them.
+3. Click **Deploy**. Dockhand clones the repository on the first deploy; until then it may say the compose file is
+   not available.
+4. Use **Dockhand 1.0.40 or newer**: older versions did not pass the panel variables when starting, stopping or
+   removing a Git stack ([bug report](https://github.com/Finsys/dockhand/issues/1313), fixed in 1.0.40).
 
-**Moving existing reviews to the server:** on the old machine open the home page and press **Backup (.zip)** on a
-review. On the new server press **Restore from backup** and pick the file.
+### Variables to set
+
+| Variable | Example | Why |
+|---|---|---|
+| `DATA_PATH` | `/srv/review-workbench/data` | **Absolute folder on the Docker host** that holds all data. Do not leave the default `./data`: in a Git stack a relative path points into Dockhand's own clone of the repository, and with a remote Docker host it points nowhere useful. Docker creates the folder if it is missing. |
+| `BIND_ADDRESS` | `0.0.0.0` | Only if you want to open the app from another computer. The default `127.0.0.1` is reachable from the server only. |
+| `HOST_PORT` | `8000` | Change if the port is taken. |
+| `PUID`, `PGID` | `1000`, `1000` | Your user on the server (`id -u`, `id -g`), so you can read and back up the data folder. |
+| `IMAGE_NAME` | `ghcr.io/edos08/review-workbench:1.0.0` | Optional: pin a version instead of following `latest`. |
+
+### Updating
+
+Redeploy the stack with the **Pull images** option so Docker fetches the new image. The data folder is outside
+the container and is never touched.
+
+**Moving existing reviews to the server:** on the old machine press **Backup (.zip)** on a review, then on the
+server press **Restore from backup** and pick the file.
 
 ---
 
@@ -332,6 +396,7 @@ Everything is under one folder (`DATA_PATH` on the host, `/data` in the containe
 |---|---|
 | Container restarts, log says `Permission denied` on the data folder | Should not happen: the entrypoint fixes ownership of the data folder at start. Check that `PUID`/`PGID` are numbers and that the host filesystem allows `chown` (some network shares do not). |
 | Page does not open from another computer | `BIND_ADDRESS` is `127.0.0.1` (the default). Set `0.0.0.0` and redeploy, and check the firewall. |
+| `pull access denied` / `unauthorized` when pulling the image | The package is private or `IMAGE_NAME` has a typo. Set the package to Public on GitHub (Packages, *Package settings*), or log in with `docker login ghcr.io`. |
 | `Could not upload the PDF: upload too large` | Raise `MAX_PDF_MB`. |
 | `Could not upload the PDF: not a PDF file` | The file does not start with `%PDF-`. |
 | `Map not replaced: map error: ...` | The uploaded map has a syntax error, usually reported with its line number. The review keeps its old map. |
@@ -345,6 +410,7 @@ Everything is under one folder (`DATA_PATH` on the host, `/data` in the containe
 ## Development
 
     python3 -m unittest discover -s tests -v      # unit tests, standard library only
+    docker compose -f compose.yaml -f compose.build.yaml up -d --build   # run your local changes in a container
 
     server.py        HTTP routing, configuration (stdlib http.server)
     store.py         on-disk storage: reviews, maps, PDFs, zip backup, migration (no HTTP)
@@ -353,6 +419,7 @@ Everything is under one folder (`DATA_PATH` on the host, `/data` in the containe
     examples/        example maps (parsed by the tests)
     static/          the single-page frontend (vanilla JS) and vendored PDF.js
     tests/           unit tests for the store, server, map parser and bundled maps
+    .github/         workflow that tests, builds and publishes the image to ghcr.io
 
 The frontend has no build step. The HTTP API is implemented in `server.py`'s `_api` method: reviews are
 `/api/reviews[/<id>]`, with `/map`, `/map.map`, `/pdf` and `/backup.zip` underneath, plus `/api/info` and `/healthz`.
