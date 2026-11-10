@@ -51,7 +51,6 @@ Save this as `compose.yaml` in an empty folder (it is also the `compose.yaml` of
     services:
       review-workbench:
         image: ghcr.io/edos08/review-workbench:latest
-        container_name: ${CONTAINER_NAME:-review-workbench}
         restart: ${RESTART_POLICY:-unless-stopped}
         ports:
           # Default 127.0.0.1: reachable only from the server itself, because the app has no login.
@@ -120,7 +119,6 @@ reads the second.
 | `BIND_ADDRESS` | `127.0.0.1` | Host address the port is bound to. `127.0.0.1` = only reachable from the machine itself. Set `0.0.0.0` to reach it from your network (see [Security](#security-and-privacy)). |
 | `PUID` / `PGID` | `1000` / `1000` | User and group id the app runs as. Set them to your own host user (`id -u`, `id -g`) and every file in `DATA_PATH` belongs to you, so you can read, copy and delete backups without `sudo`. |
 | `MAX_PDF_MB` | `100` | Largest PDF you can attach, in megabytes. |
-| `CONTAINER_NAME` | `review-workbench` | Container name. |
 | `RESTART_POLICY` | `unless-stopped` | Docker restart policy. |
 
 **App settings (read by `server.py`, also usable without Docker)**

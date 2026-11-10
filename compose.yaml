@@ -4,7 +4,6 @@
 services:
   review-workbench:
     image: ghcr.io/edos08/review-workbench:latest
-    container_name: ${CONTAINER_NAME:-review-workbench}
     restart: ${RESTART_POLICY:-unless-stopped}
     ports:
       # Default 127.0.0.1: reachable only from the server itself, because the app has no login.
