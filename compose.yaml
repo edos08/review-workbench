@@ -4,7 +4,7 @@
 services:
   review-workbench:
     image: ghcr.io/edos08/review-workbench:latest
-    restart: ${RESTART_POLICY:-unless-stopped}
+    restart: unless-stopped
     ports:
       # Default 127.0.0.1: reachable only from the server itself, because the app has no login.
       # Set BIND_ADDRESS=0.0.0.0 to reach it from your network.
