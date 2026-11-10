@@ -11,12 +11,13 @@ submissions) in a browser instead of a Word file or a web form you cannot save.
   comments, and a **Back button** after you click a citation, so you return to where you were reading.
 - **Autosave and backup.** Every review is a folder with your answers, its map and the PDF. Download it as a
   `.zip`, restore it anywhere.
+- **Accounts.** Register and sign in; every review belongs to one user and is invisible to the others.
 - **Runs anywhere.** One Docker container, or plain Python. No database, no dependencies beyond the Python
   standard library.
 
-> **There is no login.** Anyone who can reach the port can read and edit every review, and reviews are usually
-> confidential. By default the container only listens on `127.0.0.1`. See [Security](#security-and-privacy)
-> before exposing it.
+> **Accounts:** people register with a username and password and see only their own reviews. Reviews are usually
+> confidential, so by default the container only listens on `127.0.0.1`. See [Security](#security-and-privacy)
+> before exposing it, and serve it over HTTPS if you do.
 
 ---
 
@@ -53,13 +54,14 @@ Save this as `compose.yaml` in an empty folder (it is also the `compose.yaml` of
         image: ghcr.io/edos08/review-workbench:latest
         restart: unless-stopped
         ports:
-          # Default 127.0.0.1: reachable only from the server itself, because the app has no login.
-          # Set BIND_ADDRESS=0.0.0.0 to reach it from your network.
+          # Default 127.0.0.1: reachable only from the server itself.
+          # Set BIND_ADDRESS=0.0.0.0 to reach it from your network (and use HTTPS, see the README).
           - "${BIND_ADDRESS:-127.0.0.1}:${HOST_PORT:-8000}:8000"
         environment:
           PUID: ${PUID:-1000}
           PGID: ${PGID:-1000}
           MAX_PDF_MB: ${MAX_PDF_MB:-100}
+          ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}
         volumes:
           # A normal folder on the host (a bind mount, not a Docker-managed volume), so you can open,
           # copy and back it up directly. On a server use an ABSOLUTE path, e.g. /srv/review-workbench/data.
@@ -119,6 +121,7 @@ reads the second.
 | `BIND_ADDRESS` | `127.0.0.1` | Host address the port is bound to. `127.0.0.1` = only reachable from the machine itself. Set `0.0.0.0` to reach it from your network (see [Security](#security-and-privacy)). |
 | `PUID` / `PGID` | `1000` / `1000` | User and group id the app runs as. Set them to your own host user (`id -u`, `id -g`) and every file in `DATA_PATH` belongs to you, so you can read, copy and delete backups without `sudo`. |
 | `MAX_PDF_MB` | `100` | Largest PDF you can attach, in megabytes. |
+| `ALLOW_REGISTRATION` | `true` | Whether anyone who reaches the page can create an account. The very first account can always be created. Set `false` once everyone who needs one has signed up. |
 
 **App settings (read by `server.py`, also usable without Docker)**
 
@@ -128,9 +131,10 @@ reads the second.
 | `HOST` | `127.0.0.1` (`0.0.0.0` in the image) | Address the server listens on. |
 | `PORT` | `8000` | Port the server listens on (inside the container it is always 8000). |
 | `MAX_PDF_MB` | `100` | As above. |
+| `ALLOW_REGISTRATION` | `true` | As above. |
 | `LEGACY_REVIEWS_DIR` | unset | Folder of old single-file `*.json` reviews to import at startup. Copies only, originals are never touched. Use once, then unset: while it is set, a migrated review you delete is imported again at the next start. |
 
-Invalid values (for example `MAX_PDF_MB=abc`, `PUID=abc`) stop the container at startup with a clear message.
+Invalid values (for example `MAX_PDF_MB=abc`, `ALLOW_REGISTRATION=maybe`, `PUID=abc`) stop the container at startup with a clear message.
 
 ---
 
@@ -174,6 +178,7 @@ settings*, and set the visibility to Public). A public image needs no login.
 | `BIND_ADDRESS` | `0.0.0.0` | Only if you want to open the app from another computer. The default `127.0.0.1` is reachable from the server only. |
 | `HOST_PORT` | `8000` | Change if the port is taken. |
 | `PUID`, `PGID` | `1000`, `1000` | Your user on the server (`id -u`, `id -g`), so you can read and back up the data folder. |
+| `ALLOW_REGISTRATION` | `true` | Set to `false` after the people who need accounts have registered, so strangers on your network cannot create one. |
 
 ### Updating
 
@@ -186,6 +191,23 @@ server press **Restore from backup** and pick the file.
 ---
 
 ## Using the app
+
+### Accounts
+
+- The first time you open the app it asks you to **create the first account**. Any reviews that already exist on
+  the server (made before accounts were added) become that account's.
+- After that, people **Create an account** (username 3-32 characters: letters, digits, `.`, `-`, `_`; password 8
+  or more characters) or **Sign in**. Sessions last 30 days. The top right of every page has **Password** (change
+  it; this signs out your other devices) and **Sign out**.
+- Everyone sees only their own reviews. Someone else's review behaves exactly like one that does not exist.
+- There is no password reset by email. An administrator resets a password from a terminal on the server (this
+  also signs that user out everywhere; `list` shows the usernames):
+
+      docker exec -it <container> python3 auth.py list
+      docker exec -it <container> python3 auth.py reset alice
+
+  Without Docker run `python3 auth.py reset alice` in the project folder (with the same `DATA_DIR`).
+- **My maps** (your own form templates) are shared by everyone on the server.
 
 ### Home page
 
@@ -422,30 +444,39 @@ where a newcomer would hesitate.
 Everything is under one folder (`DATA_PATH` on the host, `/data` in the container):
 
     data/
+      users.json                   accounts: usernames and password hashes (never the passwords)
+      .secret                      key that signs session cookies; delete it to sign everyone out
       maps/                        your own map templates ("My maps")
       reviews/
         <id>/
-          review.json              answers, annotations, PDF position
+          review.json              owner, answers, annotations, PDF position
           map.map                  this review's own map
           paper.pdf                the paper (if attached)
 
 - **Backup:** copy the whole `data/` folder (rsync, Time Machine, your server's backup job), or press
   **Backup (.zip)** on a single review.
 - **Restore:** put the folder back, or use **Restore from backup** with a `.zip`.
-- **Each review folder is self-contained.** You can copy one review to another instance by dropping its folder into
-  that instance's `data/reviews/`, or through the zip.
+- **Each review folder is self-contained**, and `review.json` names its `owner` (a user id from `users.json`).
+  To move a review to another instance, use **Backup (.zip)** and **Restore from backup** (the restoring user
+  becomes the owner). Dropping a bare folder into `data/reviews/` only works if its `owner` matches a user there.
 - Files are written atomically and readable by the user set with `PUID`/`PGID`.
 
 ---
 
 ## Security and privacy
 
-- **No authentication.** Anyone who can open the page can read, change and delete all reviews and papers.
+- **Accounts, not a full identity system.** Passwords are stored as salted scrypt hashes; sessions are signed
+  `HttpOnly`, `SameSite=Strict` cookies (also `Secure` when a reverse proxy sends `X-Forwarded-Proto: https`);
+  repeated wrong passwords for one username are throttled. Each user can reach only their own reviews. There is
+  no email, no password reset and no two-factor sign-in. Administrators with access to the data folder can read
+  everything in it.
+- **Use HTTPS** whenever the app is reachable beyond your own machine: without it, passwords and papers travel in
+  clear text.
+- **Close registration** (`ALLOW_REGISTRATION=false`) once everyone has an account.
 - **Safe default:** the container publishes the port on `127.0.0.1` only. To open it from other machines set
   `BIND_ADDRESS=0.0.0.0`, and only on a network you trust.
-- **Never expose it directly to the internet.** If you need remote access, put it behind a reverse proxy that
-  authenticates (Authelia, Traefik/Caddy with basic auth or SSO, an authenticated tunnel) or reach it through a VPN,
-  and use HTTPS.
+- **Prefer not to expose it directly to the internet.** If you need remote access, put it behind a reverse proxy
+  that terminates HTTPS (Caddy, Traefik, nginx) or reach it through a VPN.
 - The PDF viewer and all scripts are served by the app itself. Papers go only to *your* server.
 - Reviewing is confidential: keep the data folder on storage you control, and check the venue's rules about
   where papers may be stored and which tools may process them.
@@ -475,6 +506,7 @@ Everything is under one folder (`DATA_PATH` on the host, `/data` in the containe
     docker compose -f compose.yaml -f compose.build.yaml up -d --build   # run your local changes in a container
 
     server.py        HTTP routing, configuration (stdlib http.server)
+    auth.py          accounts, password hashing, session cookies, password-reset command
     store.py         on-disk storage: reviews, maps, PDFs, zip backup, migration (no HTTP)
     mapparser.py     the map language parser and validator
     maps/            the bundled review forms (parsed and checked by the tests)

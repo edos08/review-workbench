@@ -6,13 +6,14 @@ services:
     image: ghcr.io/edos08/review-workbench:latest
     restart: unless-stopped
     ports:
-      # Default 127.0.0.1: reachable only from the server itself, because the app has no login.
-      # Set BIND_ADDRESS=0.0.0.0 to reach it from your network.
+      # Default 127.0.0.1: reachable only from the server itself.
+      # Set BIND_ADDRESS=0.0.0.0 to reach it from your network (and use HTTPS, see the README).
       - "${BIND_ADDRESS:-127.0.0.1}:${HOST_PORT:-8000}:8000"
     environment:
       PUID: ${PUID:-1000}
       PGID: ${PGID:-1000}
       MAX_PDF_MB: ${MAX_PDF_MB:-100}
+      ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}
     volumes:
       # A normal folder on the host (a bind mount, not a Docker-managed volume), so you can open,
       # copy and back it up directly. On a server use an ABSOLUTE path, e.g. /srv/review-workbench/data.

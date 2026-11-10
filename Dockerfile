@@ -8,7 +8,7 @@ ENV PYTHONUNBUFFERED=1 \
 
 RUN useradd --create-home --uid 1000 app && mkdir /data && chown app:app /data
 WORKDIR /app
-COPY --chown=app:app server.py store.py mapparser.py ./
+COPY --chown=app:app server.py store.py mapparser.py auth.py ./
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY --chown=app:app maps ./maps
 COPY --chown=app:app static ./static

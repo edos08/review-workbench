@@ -2,7 +2,7 @@
 """Review Workbench HTTP server. Standard library only.
 
 Config (environment): DATA_DIR (default ./data), HOST (default 127.0.0.1), PORT (default 8000),
-MAX_PDF_MB (default 100), LEGACY_REVIEWS_DIR (optional: folder of old single-file reviews to import at start).
+MAX_PDF_MB (default 100), ALLOW_REGISTRATION (default true), LEGACY_REVIEWS_DIR (optional: folder of old single-file reviews to import at start).
 """
 import json
 import mimetypes
@@ -14,6 +14,7 @@ from pathlib import Path
 from urllib.parse import unquote, urlparse
 
 import mapparser
+from auth import COOKIE, SESSION_SECONDS, AuthError, Users
 from store import Store
 
 ROOT = Path(__file__).resolve().parent
@@ -36,6 +37,17 @@ def pdf_limit_from_env(env) -> int:
     return int(raw) * 1024 * 1024
 
 
+def bool_from_env(env, name, default=True) -> bool:
+    raw = (env.get(name) or "").strip().lower()
+    if not raw:
+        return default
+    if raw in ("1", "true", "yes", "on"):
+        return True
+    if raw in ("0", "false", "no", "off"):
+        return False
+    raise ValueError(f"{name} must be true or false, got {raw!r}")
+
+
 def slug(s):
     return re.sub(r"[^a-z0-9]+", "-", (s or "review").lower()).strip("-")[:50] or "review"
 
@@ -51,6 +63,23 @@ class Handler(BaseHTTPRequestHandler):
     @property
     def store(self):
         return self.server.store
+
+    @property
+    def users(self):
+        return self.server.users
+
+    def _cookie(self, value, max_age):
+        parts = [f"{COOKIE}={value}", "Path=/", "HttpOnly", "SameSite=Strict", f"Max-Age={max_age}"]
+        if (self.headers.get("X-Forwarded-Proto") or "").split(",")[0].strip() == "https":
+            parts.append("Secure")
+        return "; ".join(parts)
+
+    def _user(self):
+        for piece in (self.headers.get("Cookie") or "").split(";"):
+            name, _, value = piece.strip().partition("=")
+            if name == COOKIE:
+                return self.users.from_token(value)
+        return None
 
     def _send(self, code, body, ctype="application/json", extra=None, cache="no-store"):
         if not isinstance(body, bytes):
@@ -87,7 +116,7 @@ class Handler(BaseHTTPRequestHandler):
             if method != "GET":
                 raise HttpError(405, "method not allowed")
             return self._static(parts)
-        except HttpError as e:
+        except (HttpError, AuthError) as e:
             self._send(e.code, {"error": str(e)})
         except FileNotFoundError:
             self._send(404, {"error": "not found"})
@@ -111,8 +140,40 @@ class Handler(BaseHTTPRequestHandler):
         self._send(200, f.read_bytes(), ctype, cache="public, max-age=86400" if is_icon else "no-store")
 
     # ---------- API ----------
+    def _auth_api(self, method, p):
+        u = self.users
+        if p == ["me"] and method == "GET":
+            return self._send(200, {"user": self._user(), "registration": u.can_register(), "firstAccount": u.count() == 0})
+        if p == ["logout"] and method == "POST":
+            return self._send(200, {"ok": True}, extra={"Set-Cookie": self._cookie("", 0)})
+        if p in (["register"], ["login"], ["password"]) and method == "POST":
+            body = self._json_body()
+            if not isinstance(body, dict):
+                raise ValueError("expected a JSON object")
+            if p == ["password"]:
+                me = self._user()
+                if not me:
+                    raise HttpError(401, "Sign in first.")
+                u.change_password(me["id"], body.get("old"), body.get("new"))
+                # the old cookie is now void: hand back a fresh one
+                return self._send(200, {"ok": True}, extra={"Set-Cookie": self._cookie(u.issue(me), SESSION_SECONDS)})
+            if p == ["register"]:
+                user, first = u.register(body.get("username"), body.get("password"))
+                if first:  # reviews made before accounts existed go to the first person who signs up
+                    self.store.claim_unowned(user["id"])
+            else:
+                user = u.login(body.get("username"), body.get("password"))
+            return self._send(200, {"user": user}, extra={"Set-Cookie": self._cookie(u.issue(user), SESSION_SECONDS)})
+        raise HttpError(404, "not found")
+
     def _api(self, method, p):
         s = self.store
+        if p[:1] == ["auth"]:
+            return self._auth_api(method, p[1:])
+        me = self._user()
+        if not me:
+            raise HttpError(401, "Sign in required.")
+        uid = me["id"]
         if p == ["templates"] and method == "GET":
             return self._send(200, s.templates())
         if len(p) == 2 and p[0] == "templates":
@@ -123,21 +184,22 @@ class Handler(BaseHTTPRequestHandler):
                 s.delete_custom_template(p[1])
                 return self._send(200, {"ok": True})
         if p == ["reviews"] and method == "GET":
-            return self._send(200, s.list())
+            return self._send(200, s.list(uid))
         if p == ["reviews"] and method == "POST":
             body = self._json_body()
             if not isinstance(body, dict):
                 raise ValueError("expected a JSON object")
             title = body.get("title", "")
-            return self._send(201, s.create(title if isinstance(title, str) else "", body.get("template") or None))
+            return self._send(201, s.create(title if isinstance(title, str) else "", body.get("template") or None, uid))
         if p == ["reviews", "import"] and method == "POST":
             if (self.headers.get("Content-Type") or "").split(";")[0].strip() == "application/zip":
-                r = s.import_zip(self._raw(s.MAX_PDF + s.MAX_JSON + s.MAX_MAP))
+                r = s.import_zip(self._raw(s.MAX_PDF + s.MAX_JSON + s.MAX_MAP), uid)
             else:
-                r = s.import_review_json(self._json_body())
+                r = s.import_review_json(self._json_body(), uid)
             return self._send(201, r)
         if len(p) >= 2 and p[0] == "reviews":
             rid, rest = p[1], p[2:]
+            s.authorize(rid, uid)  # someone else's review answers 404, exactly like a missing one
             if not rest:
                 if method == "GET":
                     return self._send(200, s.get(rid))
@@ -193,9 +255,10 @@ class Handler(BaseHTTPRequestHandler):
     def do_DELETE(self): self._route("DELETE")
 
 
-def make_server(host, port, store, static_dir):
+def make_server(host, port, store, static_dir, users):
     srv = ThreadingHTTPServer((host, port), Handler)
     srv.store = store
+    srv.users = users
     srv.static_dir = Path(static_dir)
     return srv
 
@@ -207,6 +270,10 @@ def main():
     except ValueError as e:
         sys.exit(f"Configuration error: {e}")
     store = Store(data_dir, ROOT / "maps")
+    try:
+        users = Users(data_dir, bool_from_env(os.environ, "ALLOW_REGISTRATION", True))
+    except ValueError as e:
+        sys.exit(f"Configuration error: {e}")
     legacy = os.environ.get("LEGACY_REVIEWS_DIR")
     if legacy:
         moved = store.migrate_legacy(legacy)
@@ -214,7 +281,7 @@ def main():
             print(f"Imported {len(moved)} review(s) from {legacy}: {', '.join(moved)}")
     host = os.environ.get("HOST", "127.0.0.1")
     port = int(os.environ.get("PORT") or (sys.argv[1] if len(sys.argv) > 1 else 8000))
-    srv = make_server(host, port, store, ROOT / "static")
+    srv = make_server(host, port, store, ROOT / "static", users)
     print(f"Review Workbench on http://{host}:{port}  (data: {data_dir})")
     try:
         srv.serve_forever()

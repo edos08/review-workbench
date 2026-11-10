@@ -165,14 +165,41 @@ class Store:
         p.unlink()
 
     # ---------- reviews ----------
-    def create(self, title: str = "", template=None) -> dict:
+    def authorize(self, rid, owner) -> None:
+        """Raise FileNotFoundError unless review `rid` belongs to `owner` (someone else's review looks like a missing one)."""
+        try:
+            d = self._dir(rid)
+        except ValueError:
+            raise FileNotFoundError(rid)
+        try:
+            actual = json.loads((d / "review.json").read_text(encoding="utf-8")).get("owner")
+        except (OSError, ValueError):
+            actual = None
+        if owner is None or actual != owner:
+            raise FileNotFoundError(rid)
+
+    def claim_unowned(self, owner) -> int:
+        """Give every review that has no owner (made before accounts existed) to `owner`."""
+        n = 0
+        for d in self.reviews.iterdir():
+            try:
+                r = json.loads((d / "review.json").read_text(encoding="utf-8"))
+                if isinstance(r, dict) and not r.get("owner"):
+                    r["owner"] = owner
+                    self._write_json(d, r)
+                    n += 1
+            except (OSError, ValueError):
+                continue
+        return n
+
+    def create(self, title: str = "", template=None, owner=None) -> dict:
         tid = template or self.DEFAULT_TEMPLATE
         text = self.template_text(tid)  # resolve (and validate) before any folder exists
         self._check_map(text)
         rid, d = self._new_dir()
         try:
             now = time.time()
-            review = {"id": rid, "title": title or "Untitled review", "template": tid, "created": now, "updated": now,
+            review = {"id": rid, "title": title or "Untitled review", "template": tid, "owner": owner, "created": now, "updated": now,
                       "paperFile": None, "values": {}, "annotations": []}
             _atomic_write(d / "map.map", text.encode())
             self._write_json(d, review)
@@ -220,11 +247,13 @@ class Store:
         filled = sum(1 for i in required if _is_filled(values.get(i)))
         return {"filled": filled, "required": len(required)}, str(tree["attrs"].get("label") or "")
 
-    def list(self) -> list:
+    def list(self, owner=None) -> list:
         out = []
         for d in self.reviews.iterdir():
             try:
                 r = json.loads((d / "review.json").read_text(encoding="utf-8"))
+                if (r.get("owner") or None) != owner:
+                    continue
                 progress, label = self._progress(d, r)
                 out.append({"id": d.name, "title": r.get("title"), "created": r.get("created"), "updated": r.get("updated"),
                             "paperFile": r.get("paperFile"), "template": r.get("template"), "mapLabel": label,
@@ -291,7 +320,7 @@ class Store:
                     z.write(d / name, name)
         return buf.getvalue()
 
-    def import_zip(self, data: bytes) -> dict:
+    def import_zip(self, data: bytes, owner=None) -> dict:
         try:
             z = zipfile.ZipFile(io.BytesIO(data))
         except zipfile.BadZipFile:
@@ -323,12 +352,12 @@ class Store:
         pdf = read("paper.pdf") if "paper.pdf" in names else None
         if pdf is not None:
             self._check_pdf(pdf)
-        return self._materialise(review, map_text, pdf, drop_paper_name=pdf is None)
+        return self._materialise(review, map_text, pdf, drop_paper_name=pdf is None, owner=owner)
 
-    def import_review_json(self, obj: dict) -> dict:
+    def import_review_json(self, obj: dict, owner=None) -> dict:
         if not isinstance(obj, dict) or not isinstance(obj.get("values"), dict):
             raise ValueError("not a review file: missing 'values'")
-        return self._materialise(obj, self._fallback_map(obj), None)
+        return self._materialise(obj, self._fallback_map(obj), None, owner=owner)
 
     def _fallback_map(self, review: dict) -> str:
         tid = review.get("template")
@@ -337,13 +366,14 @@ class Store:
         except (ValueError, FileNotFoundError):
             return self.template_text(self.LEGACY_TEMPLATE)
 
-    def _materialise(self, review: dict, map_text: str, pdf, drop_paper_name=False) -> dict:
+    def _materialise(self, review: dict, map_text: str, pdf, drop_paper_name=False, owner=None) -> dict:
         rid, d = self._new_dir(review.get("id"))
         try:
             now = time.time()
             tid = review.get("template")
             out = {"id": rid, "title": review.get("title") or "Imported review",
                    "template": tid if isinstance(tid, str) and ID_RE.match(tid) else self.LEGACY_TEMPLATE,
+                   "owner": owner,  # never taken from the file being imported
                    "created": review.get("created") or now, "updated": now,
                    "paperFile": None if drop_paper_name else review.get("paperFile"),
                    "values": review["values"], "annotations": review.get("annotations") or [],

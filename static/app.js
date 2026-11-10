@@ -16,18 +16,18 @@ const h = (tag, attrs = {}, ...kids) => {
   return el;
 };
 const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-const api = async (method, url, body) => {
-  const r = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
+let me = null;            // the signed-in user, or null
+let signedOut = () => {}; // set below: called when the server says the session is gone
+const checked = async r => {
   const data = await r.json().catch(() => ({}));
+  if (r.status === 401 && me && !r.url.includes("/api/auth/")) { me = null; signedOut(); }
   if (!r.ok) throw new Error(data.error || r.statusText);
   return data;
 };
-const apiRaw = async (method, url, body, ctype) => {
-  const r = await fetch(url, { method, headers: ctype ? { "Content-Type": ctype } : {}, body });
-  const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(data.error || r.statusText);
-  return data;
-};
+const api = (method, url, body) =>
+  fetch(url, { method, headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined }).then(checked);
+const apiRaw = (method, url, body, ctype) =>
+  fetch(url, { method, headers: ctype ? { "Content-Type": ctype } : {}, body }).then(checked);
 function toast(msg) {
   const t = h("div", { class: "toast" }, msg);
   document.body.append(t);
@@ -302,7 +302,7 @@ async function showHome(token) {
     h("header", { class: "hero" },
       h("div", { class: "brand" }, h("img", { src: "/favicon.svg", alt: "", width: 44, height: 44 }),
         h("div", {}, h("h1", {}, "Review Workbench"), h("p", { class: "muted" }, "Write peer reviews with the paper beside you."))),
-      h("div", { class: "hero-actions" }, h("button", { class: "btn-ghost", onclick: () => fileIn.click(), title: "Import a review from a backup .zip" }, "Restore from backup"), fileIn)),
+      h("div", { class: "hero-actions" }, h("button", { class: "btn-ghost", onclick: () => fileIn.click(), title: "Import a review from a backup .zip" }, "Restore from backup"), fileIn, userMenu())),
     newCard, reviewsCard));
 }
 
@@ -586,7 +586,7 @@ async function showReview(id, token) {
     progress, status, pdfBtn, pdfInput,
     mapMenu,
     h("a", { class: "btnlink", href: `/api/reviews/${id}/backup.zip`, download: "", title: "Download this review's whole folder (answers, map, PDF)", onclick: async () => { await flush(); } }, "Backup (.zip)"),
-    exportBtn);
+    exportBtn, userMenu(async () => { await flush(); }));
 
   /* splitter */
   const splitter = h("div", { class: "splitter", title: "Drag to resize" });
@@ -630,13 +630,79 @@ async function showReview(id, token) {
 
 }
 
+/* ---------- accounts ---------- */
+async function signOut(beforeLeave) {
+  try { if (beforeLeave) await beforeLeave(); await api("POST", "/api/auth/logout", {}); } catch {}
+  me = null; location.hash = "#/"; showAuth();
+}
+
+function userMenu(beforeLeave) {
+  if (!me) return null;
+  return h("span", { class: "usermenu" },
+    h("span", { class: "who", title: "Signed in" }, "👤 " + me.username),
+    h("button", { class: "btn-ghost", onclick: () => changePassword() }, "Password"),
+    h("button", { class: "btn-ghost", onclick: () => signOut(beforeLeave) }, "Sign out"));
+}
+
+function changePassword() {
+  const old = h("input", { type: "password", autocomplete: "current-password", class: "text-in", placeholder: "Current password" });
+  const nw = h("input", { type: "password", autocomplete: "new-password", class: "text-in", placeholder: "New password (8+ characters)" });
+  const err = h("p", { class: "err", role: "alert" });
+  const dlg = h("div", { class: "modal-back", onclick: e => { if (e.target === dlg) dlg.remove(); } },
+    h("form", { class: "auth-card modal", onsubmit: async e => {
+      e.preventDefault(); err.textContent = "";
+      try { await api("POST", "/api/auth/password", { old: old.value, new: nw.value }); dlg.remove(); toast("Password changed. Other devices were signed out."); }
+      catch (x) { err.textContent = x.message; }
+    } }, h("h2", {}, "Change password"), old, nw, err,
+      h("div", { class: "auth-actions" }, h("button", { type: "button", class: "btn-ghost", onclick: () => dlg.remove() }, "Cancel"),
+        h("button", { class: "btn-primary", type: "submit" }, "Change password"))));
+  document.body.append(dlg); old.focus();
+}
+
+function showAuth(mode, info) {
+  navToken++; if (current) { current.cleanup(); current = null; }
+  document.title = "Sign in – Review Workbench";
+  info = info || { registration: false, firstAccount: false };
+  mode = mode || (info.firstAccount ? "register" : "login");
+  const reg = mode === "register";
+  const user = h("input", { type: "text", autocomplete: "username", class: "text-in", placeholder: "Username", required: true, autocapitalize: "none", spellcheck: "false" });
+  const pass = h("input", { type: "password", autocomplete: reg ? "new-password" : "current-password", class: "text-in", placeholder: reg ? "Password (8+ characters)" : "Password", required: true });
+  const err = h("p", { class: "err", role: "alert" });
+  const btn = h("button", { class: "btn-primary big", type: "submit" }, reg ? "Create account" : "Sign in");
+  $app.replaceChildren(h("div", { class: "auth-wrap" },
+    h("form", { class: "auth-card", onsubmit: async e => {
+      e.preventDefault(); err.textContent = ""; btn.disabled = true;
+      try {
+        const r = await api("POST", reg ? "/api/auth/register" : "/api/auth/login", { username: user.value.trim(), password: pass.value });
+        me = r.user; route();
+      } catch (x) { err.textContent = x.message; btn.disabled = false; }
+    } },
+      h("div", { class: "brand" }, h("img", { src: "/favicon.svg", alt: "", width: 44, height: 44 }), h("h1", {}, "Review Workbench")),
+      h("h2", {}, reg ? (info.firstAccount ? "Create the first account" : "Create an account") : "Sign in"),
+      info.firstAccount && reg ? h("p", { class: "muted" }, "Reviews that already exist on this server will become yours.") : null,
+      user, pass, err, btn,
+      info.registration || reg ? h("p", { class: "muted auth-switch" }, reg ? "Already have an account? " : "New here? ",
+        h("a", { href: "#", onclick: e => { e.preventDefault(); showAuth(reg ? "login" : "register", info); } }, reg ? "Sign in" : "Create an account")) : null,
+      !reg && !info.registration ? h("p", { class: "muted auth-switch" }, "Registration is closed on this server.") : null)));
+  user.focus();
+}
+
 /* ---------- router ---------- */
 async function route() {
   if (current) { current.cleanup(); current = null; }
+  if (!me) {
+    const info = await fetch("/api/auth/me").then(r => r.json()).catch(() => null);
+    if (!info) return $app.replaceChildren(h("div", { class: "home" }, h("p", { class: "err" }, "Cannot reach the server.")));
+    if (!info.user) return showAuth(null, info);
+    me = info.user;
+  }
   const m = location.hash.match(/^#\/review\/([A-Za-z0-9_-]+)/);
   const token = ++navToken;
   try { m ? await showReview(m[1], token) : await showHome(token); }
   catch (e) { $app.replaceChildren(h("div", { class: "home" }, h("p", { class: "err" }, "Error: " + e.message), h("a", { href: "#/" }, "Home"))); }
 }
+signedOut = () => {
+  fetch("/api/auth/me").then(r => r.json()).then(info => { showAuth("login", info); toast("You were signed out. Sign in again."); }).catch(() => {});
+};
 window.addEventListener("hashchange", route);
 route();
