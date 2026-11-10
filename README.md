@@ -216,7 +216,7 @@ divider to resize).
 
 1. Press **Select file (PDF)…** and choose the paper. It is uploaded to *your* server and stored in the review's
    folder; it opens again whenever you open the review, from any device.
-2. **Annotate:** select text and a small bar appears (four highlight colours, underline, strikethrough, or
+2. **Annotate:** select text and a small bar appears (five highlight colours: yellow, orange, red, green, blue; underline; strikethrough; or
    highlight + comment). Or pick a tool in the toolbar (*Highlight*, *Underline*, *Strike*) and every selection is
    marked immediately; pick *Select* to go back.
 3. **Click a mark** to change its type or colour, write a comment (shown as a speech bubble on the page), or delete it.

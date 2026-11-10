@@ -4,7 +4,7 @@
    page size, so they stay put at any zoom level. */
 (function () {
   const BASE = "/vendor/pdfjs/";
-  const COLORS = { yellow: "#ffe14d", green: "#7ddc6f", pink: "#ff8fc7", blue: "#6ec6ff" };
+  const COLORS = { yellow: "#ffe14d", orange: "#ffa53d", red: "#ff5c5c", green: "#7ddc6f", blue: "#6ec6ff" };
   const TYPES = { highlight: "Highlight", underline: "Underline", strike: "Strikethrough" };
   const SCALE_KEYWORDS = ["page-width", "page-fit", "page-actual", "auto"];
 
@@ -28,6 +28,7 @@
 
   window.createPdfViewer = function (host, opts) {
     const anns = opts.annotations;           // mutated in place, shared with the review
+    anns.forEach(a => { if (a.color === "pink") a.color = "red"; });  // pink was replaced by red
     let tool = "select", color = "yellow";
     let pdfDoc = null, pdfViewer = null, linkService = null, eventBus = null, openToken = 0, pendingState = null;
     const backStack = [];

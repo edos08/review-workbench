@@ -177,6 +177,20 @@ class TestHttpHardening(ServerCase):
 
 
 class TestStatic(ServerCase):
+    def test_tab_icons_are_served_and_linked(self):
+        st, ctype, body = self.req("GET", "/")
+        for href in (b'rel="icon" type="image/svg+xml" href="/favicon.svg"', b'rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"',
+                     b'rel="apple-touch-icon" href="/apple-touch-icon.png"'):
+            self.assertIn(href, body)
+        for path, want in (("/favicon.svg", "image/svg+xml"), ("/favicon-32.png", "image/png"),
+                           ("/apple-touch-icon.png", "image/png"), ("/favicon.ico", "image/")):
+            st, ctype, data = self.req("GET", path)
+            self.assertEqual(st, 200, path)
+            self.assertTrue(ctype.startswith(want), (path, ctype))
+            self.assertGreater(len(data), 100, path)
+        self.assertTrue(self.req("GET", "/favicon-32.png")[2].startswith(b"\x89PNG"))
+        self.assertTrue(self.req("GET", "/favicon.ico")[2].startswith(b"\x00\x00\x01\x00"))
+
     def test_index_served_and_traversal_blocked(self):
         st, ctype, body = self.req("GET", "/")
         self.assertEqual(st, 200)
